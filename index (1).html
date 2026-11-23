@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0b1028">
+<meta name="color-scheme" content="dark">
+<title>Lucidum – lucidní snění</title>
+<style>
+:root{
+  --bg:#0b1028; --bg2:#10163a; --surface:#161d4a; --surface2:#1d2560; --line:#2a3373;
+  --text:#d9d4ea; --dim:#9893b8; --faint:#6a6791;
+  --violet:#8a7be0; --violet2:#5b4bb8; --gold:#c9a85c; --azure:#62b6cc; --rose:#c97a9a; --green:#7fbf9a;
+  --radius-l:22px; --radius-m:14px; --radius-s:10px;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  --nav-h:68px;
+  color-scheme:dark;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;overscroll-behavior:none}
+body{background:radial-gradient(120% 60% at 50% -10%,#1f1a52 0%,transparent 60%),var(--bg);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
+input,textarea,[contenteditable]{user-select:text;-webkit-user-select:text}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:.01em;margin:0}
+h2{font-size:1.5rem;line-height:1.2}
+h3{font-size:1.15rem;line-height:1.3}
+p{margin:.4em 0}
+a{color:var(--azure)}
+:focus-visible{outline:2px solid var(--azure);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55}
+#app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.topbar{display:flex;align-items:center;gap:12px;padding:12px 18px 8px}
+.brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.brand-moon{width:34px;height:34px;flex:none}
+.brand h1{font-size:1.35rem;color:var(--text)}
+.brand small{display:block;color:var(--dim);font-size:.78rem;font-family:var(--sans);margin-top:-2px}
+.icon-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.icon-btn svg{width:22px;height:22px}
+
+main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:6px 16px calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 24px)}
+.view{display:none;max-width:680px;margin:0 auto}
+.view.active{display:block;animation:viewIn .32s cubic-bezier(.2,.8,.2,1)}
+.view.from-left.active{animation-name:viewInL}
+@keyframes viewIn{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes viewInL{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:space-around;align-items:stretch;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(12,16,44,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.bottomnav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--faint);font-size:.72rem;position:relative;transition:color .2s}
+.bottomnav button svg{width:25px;height:25px;transition:transform .25s}
+.bottomnav button.active{color:var(--gold)}
+.bottomnav button.active svg{transform:translateY(-2px)}
+.bottomnav button.active::before{content:"";position:absolute;top:0;width:34px;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+
+.section{margin:18px 0}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 10px}
+.section-head span{color:var(--dim);font-size:.85rem}
+.panel{background:linear-gradient(180deg,rgba(29,37,96,.75),rgba(22,29,74,.75));border:1px solid var(--line);border-radius:var(--radius-l);padding:16px}
+.panel + .panel{margin-top:12px}
+.muted{color:var(--dim)}
+.small{font-size:.85rem}
+.center{text-align:center}
+.row{display:flex;gap:10px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1}
+.stack > * + *{margin-top:10px}
+.hidden{display:none!important}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:12px 20px;border-radius:var(--radius-m);background:var(--surface2);border:1px solid var(--line);color:var(--text);font-weight:600;font-size:1rem;transition:transform .12s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:linear-gradient(135deg,var(--violet),var(--violet2));border-color:transparent;color:#f1edff}
+.btn.gold{background:linear-gradient(135deg,#d6b86c,#a9873e);border-color:transparent;color:#1b1630}
+.btn.ghost{background:transparent}
+.btn.danger{background:rgba(201,122,154,.15);border-color:rgba(201,122,154,.4);color:#e7b3c8}
+.btn.block{width:100%}
+.btn.big{min-height:64px;font-size:1.1rem;border-radius:var(--radius-l)}
+.btn.sm{min-height:40px;padding:8px 14px;font-size:.9rem}
+.btn svg{width:20px;height:20px;flex:none}
+
+label.field{display:block}
+label.field > span{display:block;font-size:.85rem;color:var(--dim);margin:0 0 6px 2px}
+input[type=text],input[type=search],input[type=date],input[type=time],input[type=number],select,textarea{width:100%;background:rgba(8,11,32,.6);border:1px solid var(--line);color:var(--text);border-radius:var(--radius-m);padding:13px 14px;font:inherit;font-size:1rem;min-height:50px;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--violet)}
+textarea{resize:vertical;line-height:1.6}
+textarea.dream-text{min-height:240px;font-size:1.08rem;font-family:var(--serif)}
+input[type=range]{width:100%;accent-color:var(--gold);height:36px}
+::placeholder{color:var(--faint)}
+input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator{filter:invert(.75)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--dim);font-size:.92rem;transition:all .15s}
+.chip.on{background:rgba(138,123,224,.22);border-color:var(--violet);color:var(--text)}
+.chip.gold.on{background:rgba(201,168,92,.18);border-color:var(--gold)}
+.chip.static{min-height:auto;padding:3px 10px;font-size:.8rem}
+.chip-group-title{font-size:.82rem;color:var(--faint);margin:14px 2px 8px}
+
+.seg{display:flex;background:rgba(8,11,32,.55);border:1px solid var(--line);border-radius:var(--radius-m);padding:4px;gap:4px}
+.seg button{flex:1;min-height:42px;border-radius:10px;color:var(--dim);font-size:.9rem}
+.seg button.on{background:var(--surface2);color:var(--text)}
+
+.switch{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:56px;padding:6px 4px;cursor:pointer}
+.switch input{display:none}
+.switch .track{width:58px;height:34px;border-radius:999px;background:#2a2f5e;position:relative;flex:none;transition:background .2s}
+.switch .track::after{content:"";position:absolute;top:4px;left:4px;width:26px;height:26px;border-radius:50%;background:#bdb7d8;transition:transform .2s,background .2s}
+.switch input:checked + .track{background:var(--violet2)}
+.switch input:checked + .track::after{transform:translateX(24px);background:var(--gold)}
+
+.vivid{display:flex;gap:8px}
+.vivid button{flex:1;min-height:56px;border-radius:var(--radius-m);border:1px solid var(--line);background:rgba(255,255,255,.03);display:grid;place-items:center;font-size:.8rem;color:var(--dim)}
+.vivid button b{display:block;font-family:var(--serif);font-size:1.3rem;color:var(--text);font-weight:500}
+.vivid button.on{border-color:var(--gold);background:rgba(201,168,92,.16)}
+
+.dream-card{display:block;width:100%;text-align:left;padding:16px;border-radius:var(--radius-l);border:1px solid var(--line);background:rgba(22,29,74,.7);margin-bottom:10px;position:relative;overflow:hidden}
+.dream-card.lucid{border-color:rgba(201,168,92,.55);background:linear-gradient(135deg,rgba(201,168,92,.12),rgba(22,29,74,.75) 55%)}
+.dream-card h3{font-size:1.1rem;margin-bottom:4px}
+.dream-card .meta{display:flex;flex-wrap:wrap;gap:6px 12px;color:var(--faint);font-size:.8rem;margin-bottom:6px}
+.dream-card .snip{color:var(--dim);font-size:.93rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.badge-lucid{color:var(--gold)}
+.moons{letter-spacing:2px;color:var(--gold)}
+mark{background:rgba(201,168,92,.3);color:inherit;border-radius:3px}
+
+.banner{border-radius:var(--radius-l);padding:18px;background:linear-gradient(135deg,rgba(98,182,204,.18),rgba(138,123,224,.18));border:1px solid rgba(98,182,204,.35)}
+.banner h3{margin-bottom:4px}
+
+.empty{padding:28px 16px;text-align:center;color:var(--dim)}
+.empty svg{width:64px;height:64px;opacity:.6;margin-bottom:8px}
+
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kpi{padding:14px;border-radius:var(--radius-m);background:rgba(8,11,32,.45);border:1px solid var(--line)}
+.kpi b{display:block;font-family:var(--serif);font-size:1.8rem;font-weight:500;line-height:1.1}
+.kpi span{color:var(--dim);font-size:.82rem}
+canvas{display:block;width:100%}
+.bars .bar{margin:8px 0}
+.bars .bar-top{display:flex;justify-content:space-between;font-size:.88rem;margin-bottom:4px}
+.bars .bar-track{height:10px;border-radius:999px;background:rgba(8,11,32,.6);overflow:hidden}
+.bars .bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet2),var(--azure))}
+.progress{height:12px;border-radius:999px;background:rgba(8,11,32,.6);overflow:hidden;border:1px solid var(--line)}
+.progress > div{height:100%;background:linear-gradient(90deg,var(--violet),var(--gold));border-radius:999px;transition:width .6s}
+
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge{padding:12px 8px;border-radius:var(--radius-m);text-align:center;border:1px solid var(--line);background:rgba(8,11,32,.4);font-size:.78rem;color:var(--faint)}
+.badge .ic{font-size:1.7rem;display:block;filter:grayscale(1);opacity:.35;margin-bottom:4px}
+.badge b{display:block;font-size:.84rem;color:var(--dim);font-weight:600}
+.badge.got{border-color:rgba(201,168,92,.5);background:rgba(201,168,92,.08)}
+.badge.got .ic{filter:none;opacity:1}
+.badge.got b{color:var(--gold)}
+
+.tech{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:16px;border-radius:var(--radius-l);border:1px solid var(--line);background:rgba(22,29,74,.7);margin-bottom:10px}
+.tech .glyph{width:48px;height:48px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:1.5rem;background:rgba(138,123,224,.16);border:1px solid rgba(138,123,224,.35)}
+.tech .glyph.done{background:rgba(201,168,92,.16);border-color:rgba(201,168,92,.45)}
+.tech h3{margin-bottom:2px}
+.tech p{color:var(--dim);font-size:.9rem;margin:0}
+.tag-level{font-size:.75rem;color:var(--azure)}
+
+.steps{counter-reset:s;list-style:none;padding:0;margin:8px 0}
+.steps li{counter-increment:s;position:relative;padding:4px 0 10px 42px;line-height:1.55}
+.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(138,123,224,.2);border:1px solid var(--violet);font-size:.85rem;font-weight:600}
+.dodont{display:grid;gap:10px;margin-top:10px}
+.dodont div{padding:12px 14px;border-radius:var(--radius-m);font-size:.93rem}
+.dodont .do{background:rgba(127,191,154,.1);border:1px solid rgba(127,191,154,.35)}
+.dodont .dont{background:rgba(201,122,154,.1);border:1px solid rgba(201,122,154,.35)}
+.dodont ul{margin:6px 0 0;padding-left:18px}
+.tipbox{margin-top:12px;padding:12px 14px;border-radius:var(--radius-m);background:rgba(98,182,204,.1);border:1px solid rgba(98,182,204,.35);font-size:.93rem}
+.prose{font-size:1rem;line-height:1.65;user-select:text;-webkit-user-select:text}
+.prose.serif{font-family:var(--serif);font-size:1.08rem;line-height:1.75;white-space:pre-wrap}
+
+/* modal sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,5,18,.7);opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet-wrap.open{opacity:1;pointer-events:auto}
+.sheet{width:100%;max-width:680px;max-height:92%;overflow-y:auto;background:var(--bg2);border:1px solid var(--line);border-bottom:0;border-radius:26px 26px 0 0;padding:10px 18px calc(24px + env(safe-area-inset-bottom,0px));transform:translateY(40px);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.sheet-wrap.open .sheet{transform:none}
+.sheet .grip{width:44px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 14px}
+.sheet .sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sheet .sheet-head h2{flex:1}
+
+/* full-screen editor */
+.fullscreen{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.fullscreen.open{transform:none}
+.fs-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.fs-head h2{flex:1;font-size:1.25rem}
+.fs-body{flex:1;overflow-y:auto;padding:16px 16px calc(110px + env(safe-area-inset-bottom,0px))}
+.fs-body > *{max-width:680px;margin-left:auto;margin-right:auto}
+.fs-foot{position:absolute;left:0;right:0;bottom:0;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(11,16,40,.95);border-top:1px solid var(--line)}
+
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);transform:translate(-50%,20px);z-index:90;background:var(--surface2);border:1px solid var(--gold);color:var(--text);padding:12px 18px;border-radius:var(--radius-m);max-width:90%;text-align:center;opacity:0;pointer-events:none;transition:all .3s;font-size:.95rem}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* night dim overlay */
+#nightScreen{position:fixed;inset:0;z-index:80;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#3d2f5c;text-align:center;padding:24px}
+#nightScreen.open{display:flex}
+#nightScreen .big{font-family:var(--serif);font-size:4rem;color:#4a3a70}
+#nightScreen .hint{font-size:.85rem;color:#2e2648}
+#dimLayer{position:fixed;inset:0;background:#000;pointer-events:none;z-index:85;opacity:0}
+
+/* alarm screen */
+#alarmScreen{position:fixed;inset:0;z-index:95;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;text-align:center;background:radial-gradient(circle at 50% 40%,#2a2266,#070a1f 70%)}
+#alarmScreen.open{display:flex}
+#alarmScreen h2{font-size:2rem}
+.pulse-ring{width:150px;height:150px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;animation:ring 3s ease-in-out infinite;font-size:3rem}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(201,168,92,.35)}50%{box-shadow:0 0 0 26px rgba(201,168,92,0)}}
+
+/* breathing */
+.breath-stage{position:relative;height:270px;display:grid;place-items:center}
+.breath-circle{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(98,182,204,.55),rgba(91,75,184,.35) 60%,rgba(91,75,184,.05));border:1px solid rgba(98,182,204,.5);transform:scale(1);transition-property:transform;transition-timing-function:ease-in-out}
+.breath-label{position:absolute;text-align:center;font-family:var(--serif);font-size:1.4rem;pointer-events:none}
+.breath-label small{display:block;font-family:var(--sans);font-size:.85rem;color:var(--dim)}
+
+.countdown{font-family:var(--serif);font-size:3.4rem;text-align:center;line-height:1.1;font-variant-numeric:tabular-nums}
+
+/* games */
+.game-area{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:12px 0}
+.game-text{font-family:var(--serif);font-size:1.6rem;text-align:center;min-height:2.4em;transition:filter .3s,opacity .3s;padding:0 8px}
+.game-text.blur{filter:blur(14px);opacity:.2}
+.game-clock{font-family:var(--serif);font-size:4rem;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.odd-grid{display:grid;gap:8px;width:100%;max-width:360px}
+.odd-grid button{aspect-ratio:1;border-radius:12px;background:rgba(8,11,32,.55);border:1px solid var(--line);font-size:1.6rem;color:var(--azure);display:grid;place-items:center}
+.score{display:flex;justify-content:space-between;width:100%;color:var(--dim);font-size:.9rem}
+.flash-ok{animation:fok .4s}
+.flash-bad{animation:fbad .4s}
+@keyframes fok{50%{background:rgba(127,191,154,.25)}}
+@keyframes fbad{50%{background:rgba(201,122,154,.25)}}
+
+.list-plain{list-style:none;padding:0;margin:0}
+.list-plain li{padding:10px 0;border-bottom:1px solid var(--line)}
+.list-plain li:last-child{border-bottom:0}
+.checkrow{display:flex;align-items:center;gap:14px;width:100%;min-height:54px;text-align:left;padding:8px 4px;border-bottom:1px solid var(--line)}
+.checkrow:last-child{border-bottom:0}
+.checkrow .box{width:30px;height:30px;border-radius:9px;border:2px solid var(--line);flex:none;display:grid;place-items:center;transition:all .2s}
+.checkrow.on .box{background:var(--gold);border-color:var(--gold);color:#1b1630}
+.checkrow.on span{color:var(--dim);text-decoration:line-through}
+.affirm{font-family:var(--serif);font-size:1.3rem;line-height:1.5;text-align:center;padding:18px 8px;color:#e6dcb8}
+.timepreview{font-variant-numeric:tabular-nums;color:var(--azure)}
+.levelcard{display:flex;gap:16px;align-items:center}
+.levelcard svg{width:72px;height:72px;flex:none}
+.topbar{gap:8px}
+.guide-sec{border:1px solid var(--line);border-radius:var(--radius-m);margin-bottom:10px;background:rgba(22,29,74,.6);overflow:hidden}
+.guide-sec > button{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:10px 14px;text-align:left}
+.guide-sec > button h3{flex:1;font-size:1.08rem}
+.guide-sec > button .chev{transition:transform .25s;color:var(--dim)}
+.guide-sec.open > button .chev{transform:rotate(180deg)}
+.guide-sec .gbody{display:none;padding:0 16px 14px}
+.guide-sec.open .gbody{display:block}
+.guide-list{margin:4px 0;padding-left:20px}
+.guide-list li{margin:7px 0;line-height:1.55}
+.guide-lead{color:var(--dim);font-size:.93rem;margin:0 0 6px}
+pre.code{white-space:pre-wrap;word-break:break-all;font-size:.75rem;max-height:200px;overflow:auto;background:rgba(8,11,32,.6);padding:10px;border-radius:10px;border:1px solid var(--line);user-select:text;-webkit-user-select:text}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-moon" viewBox="0 0 40 40" aria-hidden="true"><defs><radialGradient id="mg" cx="40%" cy="35%"><stop offset="0" stop-color="#f1e2b0"/><stop offset="1" stop-color="#c9a85c"/></radialGradient></defs><circle cx="20" cy="20" r="15" fill="url(#mg)"/><circle id="brandShadow" cx="27" cy="16" r="13" fill="#0b1028"/></svg>
+      <div><h1>Lucidum</h1><small id="levelLabel">Začátečník</small></div>
+    </div>
+    <button class="icon-btn" id="btnHelp" aria-label="Návod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.4 9.2a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.4-2.6 4"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg></button>
+    <button class="icon-btn" id="btnDim" aria-label="Noční displej"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></button>
+    <button class="icon-btn" id="btnSettings" aria-label="Nastavení a data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button>
+  </header>
+  <main id="main">
+    <section class="view active" id="v-journal"></section>
+    <section class="view" id="v-reality"></section>
+    <section class="view" id="v-night"></section>
+    <section class="view" id="v-academy"></section>
+    <section class="view" id="v-stats"></section>
+  </main>
+  <nav class="bottomnav" id="nav">
+    <button data-tab="journal" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5Z"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5"/><path d="M13 6.5a3 3 0 1 0 3 3.6 2.3 2.3 0 0 1-3-3.6Z"/></svg>Deník</button>
+    <button data-tab="reality"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.4l-3.6-3.6a2 2 0 0 1 2.8-2.8L6 14"/></svg>Realita</button>
+    <button data-tab="night"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M19 3v4M17 5h4"/></svg>Noc</button>
+    <button data-tab="academy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 10 5-10 5L2 8Z"/><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 8v6"/></svg>Akademie</button>
+    <button data-tab="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>Pokrok</button>
+  </nav>
+</div>
+
+<div class="fullscreen" id="editor"></div>
+<div class="sheet-wrap" id="sheetWrap"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+<div id="nightScreen"><div class="big" id="nightClock">--:--</div><div id="nightInfo"></div><div class="hint">Dvojitým klepnutím se vrátíš</div></div>
+<div id="alarmScreen"></div>
+<div id="dimLayer"></div>
+<input type="file" id="fileImport" accept=".json,application/json,text/plain" class="hidden">
+<script>
+'use strict';
+/* =========================================================
+   LUCIDUM – offline aplikace pro lucidní snění
+   Čisté HTML/CSS/JS, žádné externí závislosti.
+   ========================================================= */
+
+/* ---------- Pomocné funkce ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const pad = n => String(n).padStart(2, '0');
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseDay = k => { const [y, m, d] = String(k).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const MONTHS = ['ledna', 'února', 'března', 'dubna', 'května', 'června', 'července', 'srpna', 'září', 'října', 'listopadu', 'prosince'];
+const WEEKDAYS = ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'];
+const fmtDate = k => { const d = parseDay(k); return `${d.getDate()}. ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+const fmtTime = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmtDur = ms => { ms = Math.max(0, ms); const s = Math.floor(ms / 1000); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`; };
+const plural = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4 ? few : many);
+function vibrate(p = 12) { try { if (S && S.settings.vibrate && navigator.vibrate) navigator.vibrate(p); } catch (e) { /* bez vibrací */ } }
+
+/* ---------- Úložiště dat ---------- */
+const KEY = 'lucidum.data.v1';
+const BKEY = 'lucidum.backups.v1';
+const DRAFT_KEY = 'lucidum.draft.v1';
+const RUN_KEY = 'lucidum.runtime.v1';
+
+function defaults() {
+  return {
+    version: 1,
+    created: Date.now(),
+    dreams: [],
+    rcLog: [],
+    games: { text: 0, clock: 0, odd: 0, played: 0 },
+    academyRead: [],
+    rituals: {},
+    customTags: [],
+    badges: {},
+    counters: { wbtb: 0, breath: 0, anchors: 0 },
+    settings: {
+      autoClean: true, formal: true, vibrate: true, dim: 0,
+      totem: 'bell', totemVol: 0.6, totemOnRC: true,
+      wbtbMinutes: 270, wbtbFade: 45, wbtbVol: 0.55,
+      anchorDelay: 20, anchorEvery: 12, anchorReps: 6, anchorVol: 0.18,
+      breathPattern: '478', breathMinutes: 4, breathSound: true,
+      icsFrom: '09:00', icsTo: '22:00', icsCount: 6, icsDays: 14, icsSigns: true, icsAlarm: true
+    }
+  };
+}
+function mergeData(obj) {
+  const d = defaults();
+  if (!obj || typeof obj !== 'object') return d;
+  const out = Object.assign({}, d, obj);
+  out.settings = Object.assign({}, d.settings, obj.settings || {});
+  out.games = Object.assign({}, d.games, obj.games || {});
+  out.counters = Object.assign({}, d.counters, obj.counters || {});
+  out.dreams = Array.isArray(obj.dreams) ? obj.dreams.filter(x => x && typeof x === 'object').map(normalizeDream) : [];
+  out.rcLog = Array.isArray(obj.rcLog) ? obj.rcLog.filter(n => typeof n === 'number') : [];
+  out.academyRead = Array.isArray(obj.academyRead) ? obj.academyRead : [];
+  out.customTags = Array.isArray(obj.customTags) ? obj.customTags.filter(t => typeof t === 'string') : [];
+  out.rituals = obj.rituals && typeof obj.rituals === 'object' ? obj.rituals : {};
+  out.badges = obj.badges && typeof obj.badges === 'object' ? obj.badges : {};
+  return out;
+}
+function normalizeDream(x) {
+  return {
+    id: String(x.id || uid()),
+    title: String(x.title || ''),
+    text: String(x.text || ''),
+    date: /^\d{4}-\d{2}-\d{2}$/.test(x.date) ? x.date : dayKey(),
+    vivid: clamp(parseInt(x.vivid, 10) || 3, 1, 5),
+    lucid: !!x.lucid,
+    trigger: String(x.trigger || ''),
+    emotions: Array.isArray(x.emotions) ? x.emotions.map(String) : [],
+    tags: Array.isArray(x.tags) ? x.tags.map(String) : [],
+    created: Number(x.created) || Date.now(),
+    updated: Number(x.updated) || Date.now()
+  };
+}
+
+let S = defaults();
+function getBackups() { try { const b = JSON.parse(localStorage.getItem(BKEY)); return Array.isArray(b) ? b : []; } catch (e) { return []; } }
+function load() {
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); } catch (e) { raw = null; }
+  if (raw) {
+    try { S = mergeData(JSON.parse(raw)); return; } catch (e) { /* poškozená data – zkusíme zálohu */ }
+    const b = getBackups();
+    if (b.length) { S = mergeData(b[0].data); setTimeout(() => toast('Hlavní data byla poškozená – obnoveno z automatické zálohy.'), 800); return; }
+  }
+  S = defaults();
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { toast('Úložiště je plné. Exportuj zálohu v Nastavení.'); }
+}
+function makeBackup(reason) {
+  let list = getBackups();
+  list.unshift({ t: Date.now(), reason: reason || 'auto', dreams: S.dreams.length, data: JSON.parse(JSON.stringify(S)) });
+  list = list.slice(0, 7);
+  while (list.length) {
+    try { localStorage.setItem(BKEY, JSON.stringify(list)); return true; }
+    catch (e) { list.pop(); }
+  }
+  return false;
+}
+function dailyBackup() {
+  const b = getBackups();
+  if (!b.length || dayKey(new Date(b[0].t)) !== dayKey()) { if (S.dreams.length || S.rcLog.length) makeBackup('denní automatická'); }
+}
+
+/* ---------- UI drobnosti ---------- */
+let toastT;
+function toast(msg, ms = 2600) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms);
+}
+function openSheet(html, onMount) {
+  const sh = $('#sheet');
+  sh.innerHTML = '<div class="grip"></div>' + html;
+  $('#sheetWrap').classList.add('open');
+  sh.scrollTop = 0;
+  if (onMount) onMount(sh);
+}
+function closeSheet() { $('#sheetWrap').classList.remove('open'); if (typeof sheetOnClose === 'function') { const f = sheetOnClose; sheetOnClose = null; f(); } }
+let sheetOnClose = null;
+function confirmSheet(title, text, okLabel, onOk, danger) {
+  openSheet(`<div class="sheet-head"><h2>${esc(title)}</h2></div><p class="muted">${text}</p>
+    <div class="row" style="margin-top:18px"><button class="btn grow" data-x="no">Zpět</button><button class="btn grow ${danger ? 'danger' : 'primary'}" data-x="ok">${esc(okLabel)}</button></div>`, sh => {
+    $('[data-x=no]', sh).onclick = closeSheet;
+    $('[data-x=ok]', sh).onclick = () => { closeSheet(); onOk(); };
+  });
+}
+
+/* ---------- Ranní čistič textu ---------- */
+const STOPWORDS = new Set(('a aby abych abychom abys ač ačkoli ale alespoň ani ano asi až bez bude budem budeme budete budeš budou budu by byl byla byli bylo byly bys bych bychom být během co cokoli cos což cože či dál dále další do dokonce dokud dost ho i jak jaká jaké jakmile jako jaký je jeho jej její jejich jemu jen jenom jenže ji jí jich jim jimi jinak jiný jsem jsi jsme jsou jste já k kam kde kdo kdy když ke kolem kromě kterou která které který kteří ku kvůli mají málo mám máme máš máte mé mě mezi mi mít mně mnou moc mohl mohla mohli mohlo mohou moje moji mou můj můžu může my na nad nade nám námi naše naši ne nebo nebyl nebyla nebylo nebyly nechci něco nějak nějaká nějaké nějaký někde někdo něm němu než nic nich nichž nim nimi no o od ode on ona oni ono ony opět pak po pod podle pokud potom pořád právě pro proč protože před přes při s se si sice snad sobě sobě své svůj svých svým svými ta tak také takže tam tato te té tě tebe tedy tě ten tento této ti tím tímto to tobě tohle toho tohoto tom tomto tomu tu tuto tvůj ty tyto u už v vám vámi vás váš ve vedle však všech všechno všechny všichni vy z za zase ze že žádný jsme jo tak taky prostě vlastně nějakej nějakou tady teď pak potom najednou opravdu hodně trochu velmi úplně celý celá celé zase jenom skoro asi možná nevím vím byl byla bylo jsem šel šla řekl řekla měl měla mít být chtěl chtěla viděl viděla bych bys jsi sen snu snil snila zdálo zdál zdála snem sny snech mě mi mne mnou sem tam zpátky kolem dalším další první druhý potom pak když kde který která které mezitím nakonec začal začala byli byly mohl mohla jel jela šli přišel přišla stál stála ještě něco nic všechno nějaký nějaká nějaké znovu hned někam nikam všude dlouho chvíli chvíle uvnitř venku nahoru dolů začalo mělo strašně trošku docela všem každý každá každé nějakou jiné jiná jiný stejně stejný jakoby celou celém celého pořádku hrozně divně jasně').split(/\s+/));
+
+const KNOWN = new Set(('jsem jsi jsme jste jsou když kdy byl byla bylo byli byly nebo není ještě také taky protože potom pak tam tady sem domů doma škola školy město města les lesa voda vody moře nebe dům domu auto autem byt bytě pokoj pokoji máma mamka táta taťka babička děda bratr sestra kamarád kamarádka přítel přítelkyně všechno něco nikdo někdo někde nikde najednou opravdu sen snu snil snila zdálo letěl letěla létal létala utíkal utíkala viděl viděla řekl řekla měl měla chtěl chtěla mohl mohla věděl věděla šel šla přišel přišla jel jela spadl spadla stál stála seděl seděla hledal hledala běžel běžela člověk lidé lidi dítě děti pes kočka strach radost tma světlo ruce ruka prsty hodiny zrcadlo telefon dveře okno schody chodba ulice silnice cesta most řeka hora hory vlak autobus letadlo zuby oči voda ale aby abych že který která které kteří jako jak tak taky moc hodně trochu velký velká malý malá divný divná zvláštní krásný krásná').split(/\s+/));
+
+const TYPO_MAP = {
+  jesm: 'jsem', jsm: 'jsem', sjem: 'jsem', kdyš: 'když', kdžy: 'když', kydž: 'když', protže: 'protože', prtože: 'protože', proože: 'protože',
+  neco: 'něco', nekde: 'někde', nekdo: 'někdo', nejak: 'nějak', nejaky: 'nějaký', nejaka: 'nějaká', nejake: 'nějaké', protoze: 'protože', jeste: 'ještě', neni: 'není', ktery: 'který', ktera: 'která', ktere: 'které', kteri: 'kteří', tim: 'tím', zacalo: 'začalo',
+  vsechno: 'všechno', vsichni: 'všichni', vsude: 'všude', uplne: 'úplně', kdyz: 'když', mel: 'měl', mela: 'měla', meli: 'měli', videl: 'viděl', videla: 'viděla',
+  videli: 'viděli', clovek: 'člověk', lide: 'lidé', mesto: 'město', skola: 'škola', nevim: 'nevím', vim: 'vím', rikal: 'říkal', rikala: 'říkala', rekl: 'řekl',
+  rekla: 'řekla', sel: 'šel', sla: 'šla', slo: 'šlo', utikal: 'utíkal', utikala: 'utíkala', letel: 'letěl', letela: 'letěla', chtel: 'chtěl', chtela: 'chtěla',
+  zacal: 'začal', zacala: 'začala', pres: 'přes', pred: 'před', strasne: 'strašně', hrozne: 'hrozně', divne: 'divně', zvlastni: 'zvláštní', zdalo: 'zdálo',
+  kamarad: 'kamarád', kamaradka: 'kamarádka', tata: 'táta', mama: 'máma', babicka: 'babička', deda: 'děda', dite: 'dítě', deti: 'děti', more: 'moře',
+  dum: 'dům', kocka: 'kočka', uz: 'už', porad: 'pořád', vubec: 'vůbec', skutecne: 'skutečně', lucidni: 'lucidní', snovy: 'snový', snova: 'snová',
+  vedel: 'věděl', vedela: 'věděla', citil: 'cítil', citila: 'cítila', uvedomil: 'uvědomil', uvedomila: 'uvědomila', prisel: 'přišel', prisla: 'přišla',
+  bezel: 'běžel', bezela: 'běžela', nahle: 'náhle', pritel: 'přítel', pritelkyne: 'přítelkyně'
+};
+const FORMAL_MAP = {
+  taky: 'také', furt: 'pořád', dycky: 'vždycky', eště: 'ještě', sme: 'jsme', ste: 'jste', seš: 'jsi', bysme: 'bychom', bylas: 'byla jsi',
+  mělas: 'měla jsi', šlas: 'šla jsi', vidělas: 'viděla jsi', chtělas: 'chtěla jsi', mohlas: 'mohla jsi'
+};
+const PARTICIPLES = new Set('byl byla bylo byli měl měla měli viděl viděla věděl věděla nevěděl nevěděla chtěl chtěla mohl mohla musel musela snil snila zjistil zjistila cítil cítila uvědomil uvědomila nebyl nebyla neměl neměla slyšel slyšela potkal potkala zapomněl zapomněla myslel myslela začal začala dělal dělala zkusil zkusila hledal hledala našel našla udělal udělala ztratil ztratila stál stála seděl seděla ležel ležela spal spala bál bála'.split(' '));
+const NO_COMMA_BEFORE = new Set('a i nebo ani anebo v ve na s se z ze do od o u k ke po pro při za před pod nad mezi přes bez podle kvůli jenže či ,'.split(' '));
+const COMMA_WORDS = 'že|protože|ale|který|která|které|kteří|kterou|kterého|kterém|kterým|kterými|když|jestli|aby|abych|abys|abychom|abyste';
+
+function matchCase(orig, rep) {
+  if (orig.length > 1 && orig === orig.toUpperCase() && orig !== orig.toLowerCase()) return rep.toUpperCase();
+  if (orig[0] && orig[0] === orig[0].toUpperCase() && orig[0] !== orig[0].toLowerCase()) return rep[0].toUpperCase() + rep.slice(1);
+  return rep;
+}
+function fixWord(w, formal, stats) {
+  const low = w.toLowerCase();
+  let rep = null;
+  if (TYPO_MAP[low]) rep = TYPO_MAP[low];
+  else if (formal && FORMAL_MAP[low]) rep = FORMAL_MAP[low];
+  else if (formal && /^\p{L}{2,}ls$/u.test(low) && !KNOWN.has(low)) rep = low.slice(0, -1) + ' jsi';
+  else {
+    let cand = low.replace(/(\p{L})\1{2,}/gu, '$1');
+    if (/^(\p{L})\1/u.test(cand)) cand = cand.slice(1);
+    if (!KNOWN.has(cand) && !STOPWORDS.has(cand) && /(\p{L})\1/u.test(cand)) {
+      const re = /(\p{L})\1/gu; let m;
+      while ((m = re.exec(cand))) {
+        const t = cand.slice(0, m.index) + cand.slice(m.index + 1);
+        if (KNOWN.has(t) || STOPWORDS.has(t) || TYPO_MAP[t]) { cand = TYPO_MAP[t] || t; break; }
+      }
+    }
+    if (TYPO_MAP[cand]) cand = TYPO_MAP[cand];
+    if (cand !== low) rep = cand;
+  }
+  if (rep && rep !== low) { stats.n++; return matchCase(w, rep); }
+  return w;
+}
+function cleanDreamText(input, formal = true) {
+  const stats = { n: 0 };
+  if (!input || !input.trim()) return { text: '', changes: 0 };
+  let t = input.replace(/\r\n?/g, '\n');
+  const count = (before, after) => { if (before !== after) stats.n++; return after; };
+  t = count(t, t.replace(/[ \t\u00A0]+/g, ' '));
+  t = t.split('\n').map(l => l.trim()).join('\n');
+  t = count(t, t.replace(/\n{3,}/g, '\n\n'));
+  // slova
+  t = t.replace(/\p{L}+/gu, w => fixWord(w, formal, stats));
+  // „sem“ → „jsem“ podle kontextu
+  t = t.replace(/(^|[.!?…]\s+|\n)(sem)(?=\s)/gu, (m, a, s) => { stats.n++; return a + matchCase(s, 'jsem'); });
+  t = t.replace(/\b(já\s+)(sem)\b/giu, (m, a, s) => { stats.n++; return a + matchCase(s, 'jsem'); });
+  t = t.replace(/(\p{L}+)(\s+)(sem)(?=\s+\p{L})/gu, (m, prev, sp, s, off, all) => {
+    const next = all.slice(off + m.length).trim().split(/\s+/)[0].toLowerCase().replace(/[^\p{L}]/gu, '');
+    if (PARTICIPLES.has(next) || PARTICIPLES.has(prev.toLowerCase())) { stats.n++; return prev + sp + matchCase(s, 'jsem'); }
+    return m;
+  });
+  t = t.replace(/(\p{L}+)(\s+)(sem)(?=\s*([.!?,…]|$))/gmu, (m, prev, sp, s) => {
+    if (PARTICIPLES.has(prev.toLowerCase())) { stats.n++; return prev + sp + matchCase(s, 'jsem'); }
+    return m;
+  });
+  // „ze“ → „že“ po slovesech myšlení a řeči
+  t = t.replace(/((?:^|(?<=[\s(„"]))(?:řekl|řekla|řekli|říkal|říkala|myslel|myslela|věděl|věděla|zjistil|zjistila|uvědomil|uvědomila|tvrdil|tvrdila|cítil|cítila|vím|nevím|myslím|jasné|zdálo se)\s+)ze(?=\s)/giu, (m, a) => { stats.n++; return a + 'že'; });
+  // interpunkce
+  t = count(t, t.replace(/\.{3,}/g, '…'));
+  t = count(t, t.replace(/([,;:])\1+/g, '$1'));
+  t = count(t, t.replace(/\s+([,.!?;:…])/g, '$1'));
+  t = count(t, t.replace(/([,.!?;:…])(?=[\p{L}])/gu, '$1 '));
+  // čárky před podřadicími spojkami
+  const commaRe = new RegExp(`([\\p{L}\\d]+)(\\s+)(${COMMA_WORDS})(?=[\\s,.!?…]|$)`, 'giu');
+  t = t.replace(commaRe, (m, prev, sp, w, off, all) => {
+    if (NO_COMMA_BEFORE.has(prev.toLowerCase())) return m;
+    const before = all.slice(0, off);
+    if (/[,;:]\s*$/.test(before)) return m;
+    stats.n++; return prev + ',' + sp + w;
+  });
+  // velká písmena
+  t = t.replace(/(^|[.!?…]\s+|\n\s*)(\p{Ll})/gu, (m, a, c) => { stats.n++; return a + c.toUpperCase(); });
+  // tečka na konci každého odstavce
+  t = t.split('\n').map(l => {
+    if (l && /[\p{L}\d)"“”]$/u.test(l)) { stats.n++; return l + '.'; }
+    return l;
+  }).join('\n');
+  t = t.replace(/ {2,}/g, ' ').trim();
+  return { text: t, changes: stats.n };
+}
+function autoTitle(text) {
+  const words = (text || '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  if (!words.length) return 'Sen bez názvu';
+  const firstSentence = (text.split(/[.!?…\n]/)[0] || '').trim().split(/\s+/);
+  let w = (firstSentence.length >= 3 ? firstSentence : words).slice(0, 6);
+  let title = w.join(' ').replace(/[,;:.!?…]+$/, '');
+  title = title.charAt(0).toUpperCase() + title.slice(1);
+  if (words.length > w.length) title += '…';
+  return title;
+}
+
+/* ---------- Detektor snových znamení ---------- */
+const SUFFIXES = ['atech', 'ětem', 'atům', 'ech', 'ích', 'ého', 'ěmi', 'emi', 'ému', 'ího', 'ími', 'ách', 'ata', 'aty', 'ých', 'ama', 'ami', 'ové', 'ovi', 'ými', 'ou', 'em', 'ém', 'ím', 'ům', 'ám', 'ým', 'mi', 'a', 'e', 'i', 'o', 'u', 'y', 'á', 'é', 'í', 'ý', 'ě', 'ů'];
+function stem(w) {
+  for (const s of SUFFIXES) if (w.length - s.length >= 3 && w.endsWith(s)) return w.slice(0, -s.length);
+  return w;
+}
+let signsCache = null;
+function dreamSigns(limit = 12) {
+  if (signsCache && signsCache.n === S.dreams.length && signsCache.u === lastDataChange) return signsCache.list.slice(0, limit);
+  const stems = new Map();
+  for (const d of S.dreams) {
+    const seen = new Set();
+    const words = (d.title + ' ' + d.text).toLowerCase().match(/\p{L}+/gu) || [];
+    for (const w of words) {
+      if (w.length < 3 || STOPWORDS.has(w)) continue;
+      const st = stem(w);
+      if (STOPWORDS.has(st)) continue;
+      let e = stems.get(st);
+      if (!e) { e = { docs: 0, forms: new Map(), lucid: 0 }; stems.set(st, e); }
+      e.forms.set(w, (e.forms.get(w) || 0) + 1);
+      if (!seen.has(st)) { seen.add(st); e.docs++; if (d.lucid) e.lucid++; }
+    }
+    for (const tg of d.tags) {
+      const st = '#' + tg.toLowerCase();
+      let e = stems.get(st);
+      if (!e) { e = { docs: 0, forms: new Map([[tg, 1]]), lucid: 0, tag: true }; stems.set(st, e); }
+      e.docs++; if (d.lucid) e.lucid++;
+    }
+  }
+  const minDocs = S.dreams.length >= 6 ? 2 : 1;
+  const list = [...stems.entries()].filter(([, e]) => e.docs >= minDocs).map(([st, e]) => {
+    const form = [...e.forms.entries()].sort((a, b) => b[1] - a[1])[0][0];
+    return { key: st, word: form, count: e.docs, lucid: e.lucid, tag: !!e.tag, pct: S.dreams.length ? Math.round(e.docs / S.dreams.length * 100) : 0 };
+  }).sort((a, b) => b.count - a.count || (b.tag ? 1 : 0) - (a.tag ? 1 : 0) || a.word.localeCompare(b.word, 'cs'));
+  signsCache = { n: S.dreams.length, u: lastDataChange, list };
+  return list.slice(0, limit);
+}
+let lastDataChange = 0;
+function dataChanged() { lastDataChange++; save(); checkBadges(); updateHeader(); }
+
+/* ---------- Statistiky a gamifikace ---------- */
+function dreamDays() { return new Set(S.dreams.map(d => d.date)); }
+function streaks() {
+  const days = dreamDays();
+  let cur = 0; let d = new Date();
+  if (!days.has(dayKey(d))) d = addDays(d, -1);
+  while (days.has(dayKey(d))) { cur++; d = addDays(d, -1); }
+  const sorted = [...days].sort();
+  let best = 0, run = 0, prev = null;
+  for (const k of sorted) {
+    const dt = parseDay(k);
+    if (prev && Math.round((dt - prev) / 864e5) === 1) run++; else run = 1;
+    best = Math.max(best, run); prev = dt;
+  }
+  return { cur, best: Math.max(best, cur) };
+}
+function rcToday() { const k = dayKey(); return S.rcLog.filter(t => dayKey(new Date(t)) === k).length; }
+function ritualCount() { return Object.values(S.rituals).filter(r => r && r.done && r.done.length >= 4).length; }
+function xp() {
+  const lucid = S.dreams.filter(d => d.lucid).length;
+  return S.dreams.length * 10 + lucid * 40 + S.academyRead.length * 15 + Math.min(S.rcLog.length, 1500) + streaks().best * 5 +
+    S.counters.wbtb * 15 + S.counters.breath * 5 + ritualCount() * 8 + Math.min(S.games.played, 200) * 2;
+}
+const LEVELS = [
+  { xp: 0, name: 'Začátečník' }, { xp: 60, name: 'Snílek' }, { xp: 200, name: 'Snový průzkumník' }, { xp: 450, name: 'Strážce snů' },
+  { xp: 800, name: 'Lucidní poutník' }, { xp: 1300, name: 'Architekt snů' }, { xp: 2200, name: 'Mistr snění' }
+];
+function levelInfo() {
+  const x = xp(); let i = 0;
+  for (let j = 0; j < LEVELS.length; j++) if (x >= LEVELS[j].xp) i = j;
+  const next = LEVELS[i + 1];
+  return { xp: x, idx: i, name: LEVELS[i].name, next: next ? next.name : null, need: next ? next.xp : null, pct: next ? (x - LEVELS[i].xp) / (next.xp - LEVELS[i].xp) : 1 };
+}
+const BADGES = [
+  { id: 'd1', ic: '📖', name: 'První zápis', desc: 'Zapiš první sen', ok: () => S.dreams.length >= 1 },
+  { id: 'd10', ic: '🗝️', name: 'Strážce deníku', desc: '10 zapsaných snů', ok: () => S.dreams.length >= 10 },
+  { id: 'd50', ic: '📚', name: 'Kronikář noci', desc: '50 zapsaných snů', ok: () => S.dreams.length >= 50 },
+  { id: 'd150', ic: '🏛️', name: 'Snová knihovna', desc: '150 zapsaných snů', ok: () => S.dreams.length >= 150 },
+  { id: 'l1', ic: '✨', name: 'Probuzení ve snu', desc: 'První lucidní sen', ok: () => S.dreams.some(d => d.lucid) },
+  { id: 'l5', ic: '🌙', name: 'Noční poutník', desc: '5 lucidních snů', ok: () => S.dreams.filter(d => d.lucid).length >= 5 },
+  { id: 'l20', ic: '👁️', name: 'Bdělé oko', desc: '20 lucidních snů', ok: () => S.dreams.filter(d => d.lucid).length >= 20 },
+  { id: 's3', ic: '🔥', name: 'Rozjezd', desc: 'Série 3 nocí', ok: () => streaks().best >= 3 },
+  { id: 's7', ic: '🌗', name: 'Celý týden', desc: 'Série 7 nocí', ok: () => streaks().best >= 7 },
+  { id: 's30', ic: '🌕', name: 'Lunární cyklus', desc: 'Série 30 nocí', ok: () => streaks().best >= 30 },
+  { id: 'rc25', ic: '✋', name: 'Zvídavá mysl', desc: '25 reality checků', ok: () => S.rcLog.length >= 25 },
+  { id: 'rc200', ic: '🧭', name: 'Kritický rozum', desc: '200 reality checků', ok: () => S.rcLog.length >= 200 },
+  { id: 'ac', ic: '🎓', name: 'Absolvent', desc: 'Přečti celou akademii', ok: () => ACADEMY.every(a => S.academyRead.includes(a.id)) },
+  { id: 'wb', ic: '⏰', name: 'Noční sova', desc: 'Dokonči WBTB', ok: () => S.counters.wbtb >= 1 },
+  { id: 'br', ic: '🌬️', name: 'Klidný dech', desc: '5 dechových cvičení', ok: () => S.counters.breath >= 5 },
+  { id: 'ri', ic: '🕯️', name: 'Večerní rituál', desc: '7 dokončených rituálů', ok: () => ritualCount() >= 7 },
+  { id: 'gm', ic: '🎯', name: 'Ostříž', desc: '9+ bodů v tréninku', ok: () => Math.max(S.games.text, S.games.clock) >= 9 || S.games.odd >= 15 },
+  { id: 'ar', ic: '🏰', name: 'Architekt snů', desc: 'Dosáhni úrovně Architekt snů', ok: () => xp() >= 1300 }
+];
+function checkBadges() {
+  const fresh = [];
+  for (const b of BADGES) if (!S.badges[b.id] && b.ok()) { S.badges[b.id] = Date.now(); fresh.push(b); }
+  if (fresh.length) {
+    save();
+    const b = fresh[fresh.length - 1];
+    setTimeout(() => { toast(`${b.ic} Nový odznak: ${b.name}`, 3500); vibrate([20, 60, 20]); }, 400);
+  }
+}
+function updateHeader() {
+  const L = levelInfo();
+  $('#levelLabel').textContent = `${L.name} · ${L.xp} XP`;
+  // fáze měsíce v logu podle podílu lucidních snů
+  const total = S.dreams.length, luc = S.dreams.filter(d => d.lucid).length;
+  const ratio = total ? luc / total : 0;
+  const sh = $('#brandShadow');
+  sh.setAttribute('cx', String(27 + ratio * 22));
+}
+
+/* ---------- Ovládání tlačítka Zpět (Android) ---------- */
+let histSentinel = false;
+function markOverlay() { if (!histSentinel) { try { history.pushState({ lucidum: 1 }, ''); histSentinel = true; } catch (e) { /* bez historie */ } } }
+window.addEventListener('popstate', () => {
+  histSentinel = false;
+  let closed = false;
+  if ($('#alarmScreen').classList.contains('open')) { stopAlarm(true); closed = true; }
+  else if ($('#sheetWrap').classList.contains('open')) { closeSheet(); closed = true; }
+  else if ($('#nightScreen').classList.contains('open')) { closeNightScreen(); closed = true; }
+  else if ($('#editor').classList.contains('open')) { requestCloseEditor(); closed = true; }
+  if (closed && anyOverlayOpen()) markOverlay();
+});
+function anyOverlayOpen() { return ['#sheetWrap', '#editor', '#nightScreen', '#alarmScreen'].some(s => $(s).classList.contains('open')); }
+
+/* ---------- Snový deník ---------- */
+const EMOTIONS = ['Radost', 'Klid', 'Údiv', 'Svoboda', 'Láska', 'Vzrušení', 'Strach', 'Úzkost', 'Zmatek', 'Smutek', 'Vztek', 'Nostalgie'];
+const TAG_GROUPS = [
+  { name: 'Místa', tags: ['Domov', 'Dům z dětství', 'Škola', 'Práce', 'Město', 'Les', 'Hory', 'Moře / voda', 'Nebe / vesmír', 'Dopravní prostředek', 'Neznámé místo', 'Labyrint / chodby'] },
+  { name: 'Lidé a bytosti', tags: ['Rodina', 'Partner/ka', 'Přítel/kyně', 'Bývalý/á', 'Kolega', 'Cizinec', 'Zesnulý', 'Slavná osobnost', 'Dítě', 'Zvíře', 'Stín / bytost'] },
+  { name: 'Motivy', tags: ['Létání', 'Pronásledování', 'Pád', 'Zkouška / test', 'Zuby', 'Zpoždění', 'Telefon', 'Zrcadlo', 'Nahota', 'Tma', 'Voda', 'Hledání něčeho', 'Rozbité věci'] },
+  { name: 'Typ snu', tags: ['Noční můra', 'Opakující se sen', 'Falešné probuzení', 'Spánková paralýza', 'Hypnagogie', 'Fragment'] }
+];
+const TRIGGERS = ['Reality check', 'Snové znamení', 'Spontánně', 'Vědomé usnutí (WILD)', 'Falešné probuzení', 'MILD záměr', 'Zvuková kotva'];
+const VIVID_LABELS = ['Mlhavý', 'Matný', 'Jasný', 'Živý', 'Křišťálový'];
+const moons = n => '●'.repeat(n) + '○'.repeat(5 - n);
+const fold = s => String(s || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+
+let jFilter = { q: '', mode: 'all', sign: null, limit: 40 };
+
+function getDraft() { try { const d = JSON.parse(localStorage.getItem(DRAFT_KEY)); return d && d.text && d.text.trim() ? d : null; } catch (e) { return null; } }
+function setDraft(ed) { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(Object.assign({}, ed, { emotions: [...ed.emotions], tags: [...ed.tags] }))); } catch (e) { /* ignorovat */ } }
+function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignorovat */ } }
+
+function renderJournal() {
+  const v = $('#v-journal');
+  const h = new Date().getHours();
+  const hasToday = S.dreams.some(d => d.date === dayKey());
+  const draft = getDraft();
+  const signs = dreamSigns(10);
+  const st = streaks();
+  v.innerHTML = `
+    ${draft ? `<div class="banner section"><h3>Rozepsaný sen čeká</h3><p class="muted small">Neuložený zápis z ${esc(new Date(draft.saved || Date.now()).toLocaleString('cs-CZ'))} – nic se neztratilo.</p>
+      <div class="row" style="margin-top:10px"><button class="btn primary grow" id="jDraft">Pokračovat v zápisu</button><button class="btn ghost sm" id="jDraftDel">Zahodit</button></div></div>`
+      : (h >= 3 && h < 12 && !hasToday ? `<div class="banner section"><h3>Dobré ráno 🌅</h3><p class="muted small">Sny mizí během pár minut. Nehýbej se, vybav si poslední obraz a zapiš ho – klidně jen pár slov nebo diktátem.</p></div>` : '')}
+    <div class="section">
+      <button class="btn primary big block" id="jNew"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Zapsat sen</button>
+      ${st.cur > 0 ? `<p class="center muted small" style="margin-top:8px">🔥 Série: ${st.cur} ${plural(st.cur, 'noc', 'noci', 'nocí')} v řadě</p>` : ''}
+    </div>
+    ${signs.length ? `<div class="section"><div class="section-head"><h3>Tvoje snová znamení</h3><span>klepni pro filtr</span></div>
+      <div class="chips">${signs.map(s => `<button class="chip gold ${jFilter.sign && jFilter.sign.key === s.key ? 'on' : ''}" data-sign="${esc(s.key)}">${s.tag ? '#' : ''}${esc(s.word)} · ${s.count}×</button>`).join('')}</div></div>` : ''}
+    <div class="section">
+      <div class="section-head"><h3>Moje sny</h3><span id="jCount"></span></div>
+      <input type="search" id="jSearch" placeholder="Hledat ve snech, štítcích, emocích…" value="${esc(jFilter.q)}">
+      <div class="seg" style="margin-top:10px" id="jSeg">
+        ${[['all', 'Vše'], ['lucid', 'Lucidní'], ['normal', 'Běžné'], ['night', 'Můry']].map(([k, l]) => `<button data-m="${k}" class="${jFilter.mode === k ? 'on' : ''}">${l}</button>`).join('')}
+      </div>
+      <div id="jList" style="margin-top:14px"></div>
+    </div>`;
+  $('#jNew').onclick = () => openEditor();
+  if ($('#jDraft')) {
+    $('#jDraft').onclick = () => openEditor(null, getDraft());
+    $('#jDraftDel').onclick = () => confirmSheet('Zahodit rozepsaný sen?', 'Text rozepsaného zápisu bude smazán.', 'Zahodit', () => { clearDraft(); renderJournal(); }, true);
+  }
+  $$('[data-sign]', v).forEach(b => b.onclick = () => {
+    const key = b.dataset.sign;
+    jFilter.sign = jFilter.sign && jFilter.sign.key === key ? null : dreamSigns(50).find(s => s.key === key) || null;
+    renderJournal();
+  });
+  let qT;
+  $('#jSearch').oninput = e => { clearTimeout(qT); qT = setTimeout(() => { jFilter.q = e.target.value; jFilter.limit = 40; renderJournalList(); }, 180); };
+  $$('#jSeg button').forEach(b => b.onclick = () => { jFilter.mode = b.dataset.m; jFilter.limit = 40; $$('#jSeg button').forEach(x => x.classList.toggle('on', x === b)); renderJournalList(); });
+  renderJournalList();
+}
+
+function filteredDreams() {
+  const q = fold(jFilter.q.trim());
+  return S.dreams.filter(d => {
+    if (jFilter.mode === 'lucid' && !d.lucid) return false;
+    if (jFilter.mode === 'normal' && d.lucid) return false;
+    if (jFilter.mode === 'night' && !d.tags.includes('Noční můra') && !d.emotions.includes('Strach')) return false;
+    if (jFilter.sign) {
+      if (jFilter.sign.tag) { if (!d.tags.some(t => t.toLowerCase() === jFilter.sign.key.slice(1))) return false; }
+      else {
+        const ws = (d.title + ' ' + d.text).toLowerCase().match(/\p{L}+/gu) || [];
+        if (!ws.some(w => stem(w) === jFilter.sign.key)) return false;
+      }
+    }
+    if (q) {
+      const hay = fold([d.title, d.text, d.tags.join(' '), d.emotions.join(' '), d.trigger, fmtDate(d.date)].join(' '));
+      return q.split(/\s+/).every(part => hay.includes(part));
+    }
+    return true;
+  }).sort((a, b) => b.date.localeCompare(a.date) || b.created - a.created);
+}
+function highlight(text, q) {
+  const safe = esc(text);
+  const parts = q.trim().split(/\s+/).filter(p => p.length >= 2);
+  if (!parts.length) return safe;
+  let out = safe;
+  for (const p of parts) {
+    const re = new RegExp('(' + esc(p).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    out = out.replace(re, '<mark>$1</mark>');
+  }
+  return out;
+}
+function renderJournalList() {
+  const list = filteredDreams();
+  const box = $('#jList');
+  if (!box) return;
+  $('#jCount').textContent = `${list.length} ${plural(list.length, 'sen', 'sny', 'snů')}`;
+  if (!S.dreams.length) {
+    box.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg><p>Deník je zatím prázdný.<br>Polož si telefon k posteli a ráno zapiš první sen – i útržek se počítá.</p></div>`;
+    return;
+  }
+  if (!list.length) { box.innerHTML = `<div class="empty"><p>Žádný sen neodpovídá filtru. Zkus jiné slovo nebo zruš snové znamení.</p></div>`; return; }
+  box.innerHTML = list.slice(0, jFilter.limit).map(d => {
+    let snip = d.text.replace(/\s+/g, ' ');
+    const q = jFilter.q.trim();
+    if (q) { const i = fold(snip).indexOf(fold(q.split(/\s+/)[0])); if (i > 60) snip = '…' + snip.slice(i - 40); }
+    return `<button class="dream-card ${d.lucid ? 'lucid' : ''}" data-id="${esc(d.id)}">
+      <div class="meta"><span>${fmtDate(d.date)}</span><span class="moons">${moons(d.vivid)}</span>${d.lucid ? '<span class="badge-lucid">✦ lucidní</span>' : ''}</div>
+      <h3>${highlight(d.title, q)}</h3>
+      <div class="snip">${highlight(snip.slice(0, 260), q)}</div>
+      ${d.tags.length || d.emotions.length ? `<div class="chips" style="margin-top:8px">${d.emotions.slice(0, 3).concat(d.tags.slice(0, 4)).map(t => `<span class="chip static">${esc(t)}</span>`).join('')}</div>` : ''}
+    </button>`;
+  }).join('') + (list.length > jFilter.limit ? `<button class="btn block" id="jMore">Zobrazit další (${list.length - jFilter.limit})</button>` : '');
+  $$('.dream-card', box).forEach(c => c.onclick = () => showDream(c.dataset.id));
+  if ($('#jMore')) $('#jMore').onclick = () => { jFilter.limit += 40; renderJournalList(); };
+}
+
+function showDream(id) {
+  const d = S.dreams.find(x => x.id === id); if (!d) return;
+  markOverlay();
+  openSheet(`<div class="sheet-head"><h2>${esc(d.title)}</h2></div>
+    <div class="meta muted small" style="margin-bottom:10px">${WEEKDAYS[parseDay(d.date).getDay()]}, ${fmtDate(d.date)} · živost <span class="moons">${moons(d.vivid)}</span> ${VIVID_LABELS[d.vivid - 1]}</div>
+    ${d.lucid ? `<p class="badge-lucid">✦ Lucidní sen${d.trigger ? ' – spouštěč: ' + esc(d.trigger) : ''}</p>` : ''}
+    <div class="prose serif">${esc(d.text) || '<span class="muted">Bez textu</span>'}</div>
+    ${d.emotions.length ? `<div class="chip-group-title">Emoce</div><div class="chips">${d.emotions.map(t => `<span class="chip static">${esc(t)}</span>`).join('')}</div>` : ''}
+    ${d.tags.length ? `<div class="chip-group-title">Štítky</div><div class="chips">${d.tags.map(t => `<span class="chip static">${esc(t)}</span>`).join('')}</div>` : ''}
+    <div class="row wrap" style="margin-top:20px">
+      <button class="btn primary grow" id="dEdit">Upravit</button>
+      <button class="btn grow" id="dCopy">Kopírovat text</button>
+      <button class="btn danger" id="dDel" aria-label="Smazat">Smazat</button>
+    </div>`, sh => {
+    $('#dEdit', sh).onclick = () => { closeSheet(); openEditor(d); };
+    $('#dCopy', sh).onclick = () => copyText(`${d.title}\n${fmtDate(d.date)}\n\n${d.text}`);
+    $('#dDel', sh).onclick = () => confirmSheet('Smazat tento sen?', `„${esc(d.title)}“ bude trvale odstraněn. Před smazáním se vytvoří automatická záloha.`, 'Smazat', () => {
+      makeBackup('před smazáním snu');
+      S.dreams = S.dreams.filter(x => x.id !== id); dataChanged(); renderJournal(); toast('Sen smazán');
+    }, true);
+  });
+}
+
+async function copyText(txt) {
+  try { await navigator.clipboard.writeText(txt); toast('Zkopírováno do schránky'); }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('Zkopírováno do schránky'); } catch (e2) { toast('Kopírování se nepovedlo'); }
+    ta.remove();
+  }
+}
+
+/* ---------- Editor snu ---------- */
+let ed = null;
+let edUndo = null;
+let draftT;
+function openEditor(dream, draft) {
+  const src = draft || dream;
+  ed = {
+    id: src ? src.id || null : null,
+    title: src ? src.title || '' : '',
+    text: src ? src.text || '' : '',
+    date: src ? src.date || dayKey() : dayKey(),
+    vivid: src ? src.vivid || 3 : 3,
+    lucid: src ? !!src.lucid : false,
+    trigger: src ? src.trigger || '' : '',
+    emotions: new Set(src ? src.emotions || [] : []),
+    tags: new Set(src ? src.tags || [] : [])
+  };
+  edUndo = null;
+  renderEditor();
+  $('#editor').classList.add('open');
+  markOverlay();
+  if (!src || !ed.text) setTimeout(() => { const ta = $('#edText'); if (ta) ta.focus(); }, 380);
+}
+function persistDraft() { clearTimeout(draftT); draftT = setTimeout(() => { if (ed) { ed.saved = Date.now(); setDraft(ed); } }, 400); }
+function renderEditor() {
+  const el = $('#editor');
+  const custom = S.customTags.filter(t => !TAG_GROUPS.some(g => g.tags.includes(t)));
+  const groups = TAG_GROUPS.concat(custom.length ? [{ name: 'Vlastní', tags: custom }] : []);
+  el.innerHTML = `
+    <div class="fs-head">
+      <button class="icon-btn" id="edClose" aria-label="Zavřít"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <h2>${ed.id ? 'Upravit sen' : 'Nový sen'}</h2>
+      <button class="btn gold sm" id="edSave2">Uložit</button>
+    </div>
+    <div class="fs-body">
+      <textarea class="dream-text" id="edText" placeholder="Co se ti zdálo? Piš hned, klidně bez interpunkce nebo diktátem z klávesnice. Text pak uhladíme.">${esc(ed.text)}</textarea>
+      <div class="row" style="margin:10px 0 4px">
+        <button class="btn sm" id="edClean">✨ Uhladit ranní zápis</button>
+        <span class="muted small grow" id="edWords" style="text-align:right"></span>
+      </div>
+      <div class="stack" style="margin-top:16px">
+        <label class="field"><span>Název (prázdný = vytvoří se z prvních slov)</span><input type="text" id="edTitle" value="${esc(ed.title)}" placeholder="${esc(autoTitle(ed.text))}"></label>
+        <label class="field"><span>Datum noci</span><input type="date" id="edDate" value="${esc(ed.date)}"></label>
+      </div>
+      <div class="chip-group-title">Živost snu</div>
+      <div class="vivid" id="edVivid">${[1, 2, 3, 4, 5].map(n => `<button data-v="${n}" class="${ed.vivid === n ? 'on' : ''}"><b>${n}</b>${VIVID_LABELS[n - 1]}</button>`).join('')}</div>
+      <label class="switch" style="margin-top:12px"><span><b>Byl to lucidní sen?</b><br><span class="muted small">Věděl/a jsi, že sníš?</span></span><input type="checkbox" id="edLucid" ${ed.lucid ? 'checked' : ''}><span class="track"></span></label>
+      <div id="edTrigWrap" class="${ed.lucid ? '' : 'hidden'}"><div class="chip-group-title">Co tě zlucidnilo?</div>
+        <div class="chips" id="edTrig">${TRIGGERS.map(t => `<button class="chip gold ${ed.trigger === t ? 'on' : ''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')}</div></div>
+      <div class="chip-group-title">Emoce</div>
+      <div class="chips" id="edEmo">${EMOTIONS.map(t => `<button class="chip ${ed.emotions.has(t) ? 'on' : ''}" data-e="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+      ${groups.map(g => `<div class="chip-group-title">${esc(g.name)}</div><div class="chips">${g.tags.map(t => `<button class="chip ${ed.tags.has(t) ? 'on' : ''}" data-tag="${esc(t)}">${esc(t)}</button>`).join('')}</div>`).join('')}
+      <div class="row" style="margin-top:14px"><input type="text" id="edNewTag" placeholder="Vlastní štítek (např. jméno, místo)"><button class="btn sm" id="edAddTag">Přidat</button></div>
+      ${ed.id ? `<button class="btn danger block" id="edDelete" style="margin-top:24px">Smazat sen</button>` : ''}
+    </div>
+    <div class="fs-foot"><button class="btn grow" id="edCancel">Zrušit</button><button class="btn primary grow" id="edSave">Uložit sen</button></div>`;
+  const ta = $('#edText');
+  const updWords = () => { const n = (ta.value.match(/\p{L}+/gu) || []).length; $('#edWords').textContent = `${n} ${plural(n, 'slovo', 'slova', 'slov')}`; $('#edTitle').placeholder = autoTitle(ta.value); };
+  updWords();
+  ta.oninput = () => { ed.text = ta.value; updWords(); if (edUndo !== null) { edUndo = null; $('#edClean').textContent = '✨ Uhladit ranní zápis'; } persistDraft(); };
+  $('#edClean').onclick = () => {
+    if (edUndo !== null) { ta.value = ed.text = edUndo; edUndo = null; $('#edClean').textContent = '✨ Uhladit ranní zápis'; updWords(); persistDraft(); toast('Původní text vrácen'); return; }
+    const r = cleanDreamText(ta.value, S.settings.formal);
+    if (!r.changes || r.text === ta.value) { toast('Text už je čistý ✓'); return; }
+    edUndo = ta.value; ta.value = ed.text = r.text; updWords(); persistDraft();
+    $('#edClean').textContent = '↶ Vrátit původní'; vibrate();
+    toast(`Uhlazeno – ${r.changes} ${plural(r.changes, 'úprava', 'úpravy', 'úprav')}`);
+  };
+  $('#edTitle').oninput = e => { ed.title = e.target.value; persistDraft(); };
+  $('#edDate').onchange = e => { ed.date = e.target.value || dayKey(); persistDraft(); };
+  $$('#edVivid button').forEach(b => b.onclick = () => { ed.vivid = +b.dataset.v; $$('#edVivid button').forEach(x => x.classList.toggle('on', x === b)); vibrate(); persistDraft(); });
+  $('#edLucid').onchange = e => { ed.lucid = e.target.checked; $('#edTrigWrap').classList.toggle('hidden', !ed.lucid); if (ed.lucid) vibrate([15, 40, 15]); persistDraft(); };
+  $$('#edTrig .chip').forEach(b => b.onclick = () => { ed.trigger = ed.trigger === b.dataset.t ? '' : b.dataset.t; $$('#edTrig .chip').forEach(x => x.classList.toggle('on', x.dataset.t === ed.trigger)); persistDraft(); });
+  $$('#edEmo .chip').forEach(b => b.onclick = () => { const t = b.dataset.e; ed.emotions.has(t) ? ed.emotions.delete(t) : ed.emotions.add(t); b.classList.toggle('on'); vibrate(8); persistDraft(); });
+  $$('[data-tag]', el).forEach(b => b.onclick = () => { const t = b.dataset.tag; ed.tags.has(t) ? ed.tags.delete(t) : ed.tags.add(t); b.classList.toggle('on'); vibrate(8); persistDraft(); });
+  const addTag = () => {
+    const inp = $('#edNewTag'); const t = inp.value.trim().replace(/\s+/g, ' ').slice(0, 40);
+    if (!t) return;
+    if (!S.customTags.includes(t) && !TAG_GROUPS.some(g => g.tags.includes(t))) { S.customTags.push(t); save(); }
+    ed.tags.add(t); ed.text = ta.value; const sc = $('#editor .fs-body').scrollTop; renderEditor(); $('#editor .fs-body').scrollTop = sc; persistDraft();
+  };
+  $('#edAddTag').onclick = addTag;
+  $('#edNewTag').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } };
+  $('#edSave').onclick = saveEditor;
+  $('#edSave2').onclick = saveEditor;
+  $('#edCancel').onclick = requestCloseEditor;
+  $('#edClose').onclick = requestCloseEditor;
+  if ($('#edDelete')) $('#edDelete').onclick = () => confirmSheet('Smazat tento sen?', 'Sen bude trvale odstraněn (před smazáním se vytvoří záloha).', 'Smazat', () => {
+    makeBackup('před smazáním snu'); S.dreams = S.dreams.filter(x => x.id !== ed.id); clearDraft(); closeEditor(); dataChanged(); renderJournal(); toast('Sen smazán');
+  }, true);
+}
+function saveEditor() {
+  let text = ($('#edText').value || '').trim();
+  if (!text && !ed.tags.size && !ed.title.trim()) { toast('Napiš aspoň pár slov nebo vyber štítky'); $('#edText').focus(); return; }
+  let cleaned = 0;
+  if (S.settings.autoClean && text) { const r = cleanDreamText(text, S.settings.formal); text = r.text; cleaned = r.changes; }
+  const title = ed.title.trim() || (text ? autoTitle(text) : 'Útržek: ' + [...ed.tags].slice(0, 3).join(', '));
+  const now = Date.now();
+  const rec = normalizeDream({ id: ed.id || uid(), title, text, date: ed.date, vivid: ed.vivid, lucid: ed.lucid, trigger: ed.lucid ? ed.trigger : '', emotions: [...ed.emotions], tags: [...ed.tags], created: now, updated: now });
+  const i = S.dreams.findIndex(x => x.id === rec.id);
+  if (i >= 0) { rec.created = S.dreams[i].created; S.dreams[i] = rec; } else S.dreams.push(rec);
+  const wasLucid = rec.lucid;
+  clearDraft();
+  closeEditor();
+  dataChanged();
+  renderJournal();
+  if (wasLucid) { toast('✦ Lucidní sen uložen! Gratuluji.', 3200); vibrate([30, 80, 30, 80, 60]); }
+  else toast(cleaned ? `Sen uložen (uhlazeno ${cleaned}×)` : 'Sen uložen');
+}
+function requestCloseEditor() {
+  const txt = $('#edText') ? $('#edText').value.trim() : '';
+  const orig = ed && ed.id ? (S.dreams.find(x => x.id === ed.id) || {}).text || '' : '';
+  if (txt && txt !== orig.trim()) {
+    markOverlay();
+    confirmSheet('Zavřít bez uložení?', 'Rozepsaný text zůstane uložený jako koncept, ke kterému se můžeš vrátit.', 'Zavřít', () => { closeEditor(); renderJournal(); });
+  } else { clearDraft(); closeEditor(); renderJournal(); }
+}
+function closeEditor() { $('#editor').classList.remove('open'); ed = null; }
+
+/* ---------- Ukládání souborů (export, .ics) ---------- */
+function hasNative(name) {
+  const C = window.Capacitor;
+  return !!(C && typeof C.nativePromise === 'function' && typeof C.isNativePlatform === 'function' && C.isNativePlatform() && Array.isArray(C.PluginHeaders) && C.PluginHeaders.some(h => h && h.name === name));
+}
+async function saveFile(name, content, mime) {
+  // 1) Nativní Android aplikace (Capacitor): zapiš soubor a otevři systémové „Sdílet / Otevřít v…“
+  if (hasNative('Filesystem') && hasNative('Share')) {
+    try {
+      const r = await window.Capacitor.nativePromise('Filesystem', 'writeFile', { path: name, data: content, directory: 'CACHE', encoding: 'utf8', recursive: true });
+      await window.Capacitor.nativePromise('Share', 'share', { title: name, url: r.uri, dialogTitle: name.endsWith('.ics') ? 'Otevřít v Kalendáři' : 'Uložit zálohu' });
+      return;
+    } catch (e) { if (/cancel/i.test(String((e && e.message) || e))) return; }
+  }
+  // 2) Web Share API se soubory
+  try {
+    if (typeof File === 'function' && navigator.canShare) {
+      const file = new File([content], name, { type: mime });
+      if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); toast('Soubor odeslán ✓'); return; }
+    }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  // 3) Klasické stažení
+  try {
+    const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+  } catch (e) { /* pokračuj na záložní variantu */ }
+  // 4) Záložní varianta: obsah ke zkopírování (některá WebView stahování tiše blokují)
+  markOverlay();
+  openSheet(`<div class="sheet-head"><h2>Soubor ${esc(name)}</h2></div>
+    <p class="muted small">Stahování bylo spuštěno. Pokud se v telefonu nic neobjevilo (některé aplikační obaly stahování blokují), zkopíruj obsah a ulož ho jako soubor <b>${esc(name)}</b> – např. přes Poznámky, Soubory nebo e-mail sobě.</p>
+    <pre class="code">${esc(content.length > 6000 ? content.slice(0, 6000) + '\n…' : content)}</pre>
+    <div class="row" style="margin-top:14px"><button class="btn primary grow" id="ffCopy">Kopírovat celý obsah</button><button class="btn grow" id="ffClose">Hotovo</button></div>`, sh => {
+    $('#ffCopy', sh).onclick = () => copyText(content);
+    $('#ffClose', sh).onclick = closeSheet;
+  });
+}
+
+/* ---------- Reality checky ---------- */
+const RC_TECHNIQUES = [
+  { ic: '👃', name: 'Ucpaný nos', how: 'Stiskni si nos prsty, zavři ústa a zkus se nadechnout nosem.', why: 'Ve snu tvé tělo leží a dýchá normálně – vzduch tedy „projde“ i ucpaným nosem. Patří k nejspolehlivějším testům.' },
+  { ic: '✋', name: 'Prsty a dlaně', how: 'Podívej se pozorně na obě ruce. Spočítej prsty, prohlédni si linie dlaní, otoč ruce.', why: 'Snové ruce bývají deformované – prst navíc, rozmazané linie, měnící se tvar. Dívej se déle než sekundu.' },
+  { ic: '👉', name: 'Prst skrz dlaň', how: 'S očekáváním, že projde, zatlač ukazovák proti středu druhé dlaně.', why: 'Ve snu prst často dlaní projde. Důležité je opravdu čekat, že by mohl.' },
+  { ic: '📖', name: 'Text dvakrát', how: 'Přečti krátký text, odvrať zrak, přečti ho znovu. Ideálně dvakrát.', why: 'Snový mozek si text pokaždé „vymýšlí“ znovu – písmena se přeskupí nebo text úplně změní.' },
+  { ic: '⌚', name: 'Hodiny a displej', how: 'Podívej se na hodinky nebo telefon, zapamatuj si čas, odvrať zrak a podívej se znovu.', why: 'Čísla ve snu skáčou, dávají nesmysl (např. 27:81) nebo displej nejde přečíst.' },
+  { ic: '💡', name: 'Vypínač světla', how: 'Zmáčkni vypínač a sleduj, jestli se světlo chová přesně podle očekávání.', why: 'Světla ve snech často nereagují, mají zpoždění nebo se mění jas nesmyslně.' },
+  { ic: '🧠', name: 'Test paměti', how: 'Zeptej se: „Jak jsem se sem dostal/a? Co jsem dělal/a před deseti minutami?“', why: 'Ve snu chybí souvislá linka – ocitneš se uprostřed scény bez cesty, která k ní vedla.' },
+  { ic: '🪞', name: 'Zrcadlo', how: 'Podívej se do zrcadla a pozoruj svůj odraz pár sekund.', why: 'Snový odraz bývá rozmazaný, jiný nebo se pohybuje se zpožděním. Pokud je děsivý, prostě odvrať pohled.' },
+  { ic: '🪶', name: 'Lehký poskok', how: 'Nenápadně lehce vyskoč a vnímej dopad.', why: 'Ve snu můžeš zůstat chvíli viset ve vzduchu nebo pomalu klesat.' }
+];
+const RC_QUESTIONS = ['Je tu něco zvláštního?', 'Jak jsem se sem dostal/a?', 'Co jsem dělal/a před deseti minutami?', 'Chová se světlo a gravitace normálně?', 'Kdyby to byl sen, jak bych to poznal/a?', 'Kdo je tu se mnou a dává to smysl?'];
+
+function renderReality() {
+  const v = $('#v-reality');
+  const n = rcToday();
+  const s = S.settings;
+  v.innerHTML = `
+    <div class="section panel center">
+      <div class="countdown" style="font-size:3rem">${n}</div>
+      <p class="muted small" style="margin-top:0">${plural(n, 'reality check', 'reality checky', 'reality checků')} dnes · cíl 10–15 kvalitních</p>
+      <div class="progress" style="margin:10px 0 16px"><div style="width:${Math.min(100, n / 12 * 100)}%"></div></div>
+      <button class="btn gold big block" id="rcNow">Provést reality check teď</button>
+      <button class="btn ghost sm" id="rcQuick" style="margin-top:6px">Jen zaznamenat (+1)</button>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3>Jak testovat realitu správně</h3></div>
+      <div class="panel prose small">
+        <p><b>Pochybuj doopravdy.</b> Neptej se mechanicky. Zastav se a skutečně připusť: „Možná právě teď sním.“ Ve snu se chováš tak, jak jsi zvyklý/á přes den – rutinní test bez pochybnosti se ve snu nespustí.</p>
+        <p><b>Kombinuj dva testy.</b> Například nos + ruce. Jeden test může ve snu „projít“, dva málokdy.</p>
+        <p><b>Testuj při anomáliích.</b> Kdykoli tě něco překvapí, zarazí nebo se objeví tvoje snové znamení, je to ideální moment.</p>
+        <p><b>Dokonči otázkou.</b> Po testu se rozhlédni a řekni si: „Kdyby to byl sen, co bych teď udělal/a?“ To propojuje testy s technikou MILD.</p>
+      </div>
+      <div style="margin-top:12px">${RC_TECHNIQUES.map((t, i) => `<button class="tech" data-rc="${i}"><span class="glyph">${t.ic}</span><span><h3>${esc(t.name)}</h3><p>${esc(t.how)}</p><p class="rc-why hidden" style="margin-top:6px;color:var(--azure)">${esc(t.why)}</p></span></button>`).join('')}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3>Trénink pozornosti</h3><span>nejlepší skóre</span></div>
+      <button class="tech" id="gText"><span class="glyph">🔤</span><span class="grow"><h3>Proměnlivý text</h3><p>Přečti, odvrať zrak, přečti znovu. Změnilo se něco? · rekord ${S.games.text}/10</p></span></button>
+      <button class="tech" id="gClock"><span class="glyph">🕰️</span><span class="grow"><h3>Snové hodiny</h3><p>Je ten čas možný, nebo jde o sen? · rekord ${S.games.clock}/12</p></span></button>
+      <button class="tech" id="gOdd"><span class="glyph">🔍</span><span class="grow"><h3>Najdi anomálii</h3><p>Za 30 sekund najdi co nejvíc odlišných symbolů · rekord ${S.games.odd}</p></span></button>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3>Připomínky v kalendáři</h3></div>
+      <div class="panel stack">
+        <p class="muted small" style="margin-top:0">Vygeneruj soubor .ics s náhodnými časy reality checků. Importuješ ho jedním klepnutím do kalendáře a telefon ti bude připomínat i bez internetu. Náhodnost je důležitá – mozek si na pravidelný čas zvykne.</p>
+        <div class="row"><label class="field grow"><span>Od</span><input type="time" id="icsFrom" value="${esc(s.icsFrom)}"></label><label class="field grow"><span>Do</span><input type="time" id="icsTo" value="${esc(s.icsTo)}"></label></div>
+        <label class="field"><span>Připomínek denně: <b id="icsCountL">${s.icsCount}</b></span><input type="range" id="icsCount" min="2" max="20" value="${s.icsCount}"></label>
+        <label class="field"><span>Na kolik dní dopředu</span>
+          <div class="seg" id="icsDays">${[7, 14, 30].map(d => `<button data-d="${d}" class="${s.icsDays === d ? 'on' : ''}">${d} dní</button>`).join('')}</div></label>
+        <label class="field"><span>Začít dnem</span><input type="date" id="icsStart" value="${dayKey(addDays(new Date(), 1))}"></label>
+        <label class="switch"><span>Vkládat moje snová znamení<br><span class="muted small" id="icsSignInfo"></span></span><input type="checkbox" id="icsSigns" ${s.icsSigns ? 'checked' : ''}><span class="track"></span></label>
+        <label class="switch"><span>Upozornění (zvuk / notifikace kalendáře)</span><input type="checkbox" id="icsAlarm" ${s.icsAlarm ? 'checked' : ''}><span class="track"></span></label>
+        <p class="small muted">Ukázka prvního dne: <span class="timepreview" id="icsPreview"></span></p>
+        <button class="btn primary big block" id="icsGo">Vytvořit a stáhnout .ics</button>
+      </div>
+    </div>`;
+  $('#rcNow').onclick = guidedRC;
+  $('#rcQuick').onclick = () => { logRC(); };
+  $$('[data-rc]', v).forEach(b => b.onclick = () => $('.rc-why', b).classList.toggle('hidden'));
+  $('#gText').onclick = gameText;
+  $('#gClock').onclick = gameClock;
+  $('#gOdd').onclick = gameOdd;
+  const signs = dreamSigns(8).filter(x => x.count >= 1);
+  $('#icsSignInfo').textContent = signs.length ? 'Např.: ' + signs.slice(0, 4).map(x => x.word).join(', ') : 'Zatím žádná – zapiš pár snů';
+  const upd = () => {
+    s.icsFrom = $('#icsFrom').value || '09:00'; s.icsTo = $('#icsTo').value || '22:00'; s.icsCount = +$('#icsCount').value;
+    s.icsSigns = $('#icsSigns').checked; s.icsAlarm = $('#icsAlarm').checked; $('#icsCountL').textContent = s.icsCount; save();
+    const times = randomTimes(toMin(s.icsFrom), toMin(s.icsTo), s.icsCount).map(m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`);
+    $('#icsPreview').textContent = times.join(', ');
+  };
+  ['icsFrom', 'icsTo', 'icsCount', 'icsSigns', 'icsAlarm'].forEach(id => { $('#' + id).oninput = upd; $('#' + id).onchange = upd; });
+  $$('#icsDays button').forEach(b => b.onclick = () => { s.icsDays = +b.dataset.d; $$('#icsDays button').forEach(x => x.classList.toggle('on', x === b)); save(); });
+  upd();
+  $('#icsGo').onclick = () => {
+    upd();
+    const start = parseDay($('#icsStart').value || dayKey(addDays(new Date(), 1)));
+    const ics = buildRealityICS(start, s.icsDays, toMin(s.icsFrom), toMin(s.icsTo), s.icsCount, s.icsSigns, s.icsAlarm);
+    saveFile(`lucidum-reality-checky-${dayKey(start)}.ics`, ics, 'text/calendar');
+  };
+}
+function logRC() {
+  S.rcLog.push(Date.now());
+  if (S.rcLog.length > 20000) S.rcLog = S.rcLog.slice(-20000);
+  dataChanged(); vibrate();
+  if (activeTab === 'reality') renderReality();
+  toast(`Reality check zaznamenán (${rcToday()} dnes)`);
+}
+function guidedRC() {
+  const tests = shuffle(RC_TECHNIQUES).slice(0, 2);
+  if (S.settings.totemOnRC) { try { AudioEngine.playTotem(S.settings.totem, S.settings.totemVol); } catch (e) { /* bez zvuku */ } }
+  markOverlay();
+  let left = 12; let qi = 0; let timer = null;
+  openSheet(`<div class="sheet-head"><h2>Sníš právě teď?</h2></div>
+    ${tests.map(t => `<div class="row" style="align-items:flex-start;margin-bottom:12px"><span class="glyph" style="font-size:1.6rem">${t.ic}</span><div><b>${esc(t.name)}</b><p class="muted small" style="margin:2px 0 0">${esc(t.how)}</p></div></div>`).join('')}
+    <div class="panel center" style="margin-top:8px"><p class="muted small" style="margin:0">Zkoumej okolí a ptej se:</p><p class="affirm" id="rcQ" style="padding:10px 0">${esc(RC_QUESTIONS[0])}</p><div class="countdown" style="font-size:2rem" id="rcLeft">12</div></div>
+    <div class="row" style="margin-top:16px"><button class="btn grow" id="rcAwake">Jsem vzhůru</button><button class="btn gold grow" id="rcDream">Sním! ✦</button></div>`, sh => {
+    const q = $('#rcQ', sh);
+    timer = setInterval(() => {
+      left--; const el = $('#rcLeft', sh); if (el) el.textContent = Math.max(0, left);
+      if (left % 3 === 0) { qi = (qi + 1) % RC_QUESTIONS.length; q.textContent = RC_QUESTIONS[qi]; }
+      if (left <= 0) { clearInterval(timer); if (el) el.textContent = '✓'; }
+    }, 1000);
+    sheetOnClose = () => clearInterval(timer);
+    $('#rcAwake', sh).onclick = () => { closeSheet(); logRC(); };
+    $('#rcDream', sh).onclick = () => {
+      clearInterval(timer); sheetOnClose = null;
+      S.rcLog.push(Date.now()); dataChanged();
+      openSheet(`<div class="sheet-head"><h2>✦ Jestli opravdu sníš…</h2></div>
+        <ol class="steps"><li>Zůstaň klidný/á – nadšení sen rozpouští.</li><li>Promni si dlaně a sáhni na něco v okolí. Hmat sen stabilizuje.</li><li>Řekni nahlas: „Jasnost hned!“ a rozhlédni se po detailech.</li><li>Udělej to, co sis předem naplánoval/a.</li></ol>
+        <p class="muted small">A pokud jsi vzhůru, skvělý trénink. Přesně tenhle pocit „co když?“ chceš mít i ve snu.</p>
+        <button class="btn primary block" id="rcOk">Rozumím</button>`, s2 => { $('#rcOk', s2).onclick = () => { closeSheet(); if (activeTab === 'reality') renderReality(); }; });
+    };
+  });
+}
+
+/* ---------- Mini-hry ---------- */
+const GAME_PHRASES = ['Na stole leží modrá kniha', 'Vlak odjíždí v sedm hodin', 'Kočka spí na okně', 'Dveře do kuchyně jsou otevřené', 'Měsíc svítí nad lesem', 'Ve sklenici je studená voda', 'Klíče visí u dveří', 'Pondělí začíná v devět', 'Zelený deštník stojí v rohu', 'Strom má tři větve', 'Babička peče jablečný koláč', 'Autobus číslo 42 přijel včas', 'Na zdi visí stará mapa', 'Lampa svítí teplým světlem', 'Pes štěká na pošťáka', 'Telefon zvoní v tichém pokoji', 'Zítra bude pršet', 'Mám v kapse pět korun', 'Pod mostem teče řeka', 'Hvězdy se zrcadlí v jezeře'];
+const SWAP_WORDS = { modrá: 'zelená', sedm: 'osm', okně: 'skříni', kuchyně: 'koupelny', lesem: 'mořem', studená: 'teplá', dveří: 'okna', devět: 'deset', zelený: 'červený', tři: 'čtyři', jablečný: 'švestkový', '42': '24', stará: 'nová', teplým: 'studeným', pošťáka: 'souseda', tichém: 'prázdném', pršet: 'sněžit', pět: 'šest', řeka: 'voda', jezeře: 'rybníce', kniha: 'krabice', hodin: 'minut', Kočka: 'Kotě', Strom: 'Keř', Měsíc: 'Slunce', Pes: 'Vlk' };
+function mutatePhrase(p) {
+  const words = p.split(' ');
+  const r = Math.random();
+  const swappable = words.map((w, i) => SWAP_WORDS[w] ? i : -1).filter(i => i >= 0);
+  if (r < 0.6 && swappable.length) { const i = pick(swappable); words[i] = SWAP_WORDS[words[i]]; return words.join(' '); }
+  const idx = words.map((w, i) => w.length >= 4 ? i : -1).filter(i => i >= 0);
+  const i = pick(idx); const w = words[i]; const k = 1 + Math.floor(Math.random() * (w.length - 2));
+  words[i] = w.slice(0, k) + w[k + 1] + w[k] + w.slice(k + 2);
+  const out = words.join(' ');
+  return out === p ? p + '!' : out;
+}
+function gameShell(title, inner) {
+  return `<div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" id="gClose" aria-label="Zavřít"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>${inner}`;
+}
+function finishGame(key, score, max, label) {
+  S.games.played++;
+  const best = S.games[key] || 0;
+  const rec = score > best; if (rec) S.games[key] = score;
+  dataChanged();
+  const area = $('#gArea');
+  if (area) area.innerHTML = `<div class="center"><div class="countdown">${score}${max ? '/' + max : ''}</div><p class="muted">${rec ? '🏆 Nový rekord!' : 'Rekord: ' + best}</p><p class="small muted" style="max-width:320px">${esc(label)}</p></div><div class="row" style="width:100%"><button class="btn grow" id="gAgain">Znovu</button><button class="btn primary grow" id="gEnd">Hotovo</button></div>`;
+  if ($('#gAgain')) $('#gAgain').onclick = () => ({ text: gameText, clock: gameClock, odd: gameOdd })[key]();
+  if ($('#gEnd')) $('#gEnd').onclick = () => { closeSheet(); if (activeTab === 'reality') renderReality(); };
+}
+function gameText() {
+  let round = 0, score = 0; const total = 10; const timers = [];
+  const phrases = shuffle(GAME_PHRASES);
+  markOverlay();
+  openSheet(gameShell('Proměnlivý text', `<p class="muted small">Přečti větu pozorně. Pak odvrať zrak – a rozhodni, jestli se změnila. Přesně tohle dělej i se skutečnými texty během dne.</p><div class="game-area" id="gArea"></div>`), sh => {
+    $('#gClose', sh).onclick = closeSheet;
+    sheetOnClose = () => timers.forEach(clearTimeout);
+    const area = $('#gArea', sh);
+    const next = () => {
+      if (round >= total) { finishGame('text', score, total, 'Ve snu se text mění téměř vždy. Návyk číst dvakrát je tvoje vstupenka do lucidity.'); return; }
+      round++;
+      const orig = phrases[(round - 1) % phrases.length];
+      const changed = Math.random() < 0.5;
+      const shown = changed ? mutatePhrase(orig) : orig;
+      area.innerHTML = `<div class="score"><span>Kolo ${round}/${total}</span><span>Body ${score}</span></div><div class="game-text" id="gt">${esc(orig)}</div><button class="btn primary big block" id="gLook">Odvrátit zrak</button>`;
+      $('#gLook', area).onclick = () => {
+        const gt = $('#gt', area); gt.classList.add('blur');
+        $('#gLook', area).remove();
+        timers.push(setTimeout(() => {
+          gt.textContent = shown; gt.classList.remove('blur');
+          const row = document.createElement('div'); row.className = 'row'; row.style.width = '100%';
+          row.innerHTML = '<button class="btn grow big" data-a="same">Stejné</button><button class="btn gold grow big" data-a="diff">Změnilo se</button>';
+          area.appendChild(row);
+          $$('[data-a]', row).forEach(b => b.onclick = () => {
+            const ok = (b.dataset.a === 'diff') === changed;
+            if (ok) score++;
+            area.classList.remove('flash-ok', 'flash-bad'); void area.offsetWidth; area.classList.add(ok ? 'flash-ok' : 'flash-bad'); vibrate(ok ? 10 : [30, 50, 30]);
+            row.innerHTML = `<p class="center grow">${ok ? '✓ Správně' : '✗ Vedle'}${changed ? `<br><span class="muted small">Původně: ${esc(orig)}</span>` : ''}</p>`;
+            timers.push(setTimeout(next, changed ? 1700 : 900));
+          });
+        }, 1300));
+      };
+    };
+    next();
+  });
+}
+function clockSample() {
+  const real = Math.random() < 0.5;
+  let h = Math.floor(Math.random() * 24), m = Math.floor(Math.random() * 60);
+  if (real) return { real, text: `${pad(h)}:${pad(m)}` };
+  const kind = Math.floor(Math.random() * 6);
+  if (kind === 0) return { real, text: `${24 + Math.floor(Math.random() * 15)}:${pad(m)}` };
+  if (kind === 1) return { real, text: `${pad(h)}:${60 + Math.floor(Math.random() * 39)}` };
+  if (kind === 2) { const t = `${pad(h)}:${pad(m)}`; return t.includes('0') ? { real, text: t.replace('0', 'O') } : { real, text: `${pad(h)}:${70 + Math.floor(Math.random() * 29)}` }; }
+  if (kind === 3) return { real, text: `${pad(h)}:${pad(m)}${Math.floor(Math.random() * 10)}` };
+  if (kind === 4) return { real, text: `${pad(h)};${pad(m)}` };
+  return { real, text: `${pad(h)}:${pad(m)}:${60 + Math.floor(Math.random() * 39)}` };
+}
+function gameClock() {
+  let round = 0, score = 0; const total = 12; let tmr = null; let dl = 0;
+  markOverlay();
+  openSheet(gameShell('Snové hodiny', `<p class="muted small">Máš 4 sekundy. Je zobrazený čas ve skutečnosti možný? Pozor na drobnosti – ve snu je mozek líný je kontrolovat.</p><div class="game-area" id="gArea"></div>`), sh => {
+    $('#gClose', sh).onclick = closeSheet;
+    sheetOnClose = () => clearInterval(tmr);
+    const area = $('#gArea', sh);
+    const answer = (val, sample) => {
+      clearInterval(tmr);
+      const ok = val === sample.real; if (ok) score++;
+      area.classList.remove('flash-ok', 'flash-bad'); void area.offsetWidth; area.classList.add(ok ? 'flash-ok' : 'flash-bad'); vibrate(ok ? 10 : [30, 50, 30]);
+      setTimeout(next, 650);
+    };
+    const next = () => {
+      if (round >= total) { finishGame('clock', score, total, 'Čísla ve snech skáčou a nedávají smysl. Kontroluj čas dvakrát a vědomě.'); return; }
+      round++;
+      const sample = clockSample();
+      area.innerHTML = `<div class="score"><span>Kolo ${round}/${total}</span><span>Body ${score}</span></div><div class="game-clock">${esc(sample.text)}</div><div class="progress" style="width:100%"><div id="gBar" style="width:100%;transition:none"></div></div>
+        <div class="row" style="width:100%"><button class="btn big grow" id="gR">Realita</button><button class="btn gold big grow" id="gS">Sen</button></div>`;
+      $('#gR', area).onclick = () => answer(true, sample);
+      $('#gS', area).onclick = () => answer(false, sample);
+      dl = Date.now() + 4000;
+      tmr = setInterval(() => {
+        const left = dl - Date.now(); const bar = $('#gBar', area); if (bar) bar.style.width = Math.max(0, left / 40) + '%';
+        if (left <= 0) { clearInterval(tmr); vibrate([30, 50, 30]); area.classList.remove('flash-ok', 'flash-bad'); void area.offsetWidth; area.classList.add('flash-bad'); setTimeout(next, 500); }
+      }, 50);
+    };
+    next();
+  });
+}
+const ODD_PAIRS = [['◐', '◑'], ['☾', '☽'], ['✦', '✧'], ['△', '▽'], ['○', '◎'], ['◆', '◇'], ['▲', '►'], ['♤', '♠'], ['❖', '✥'], ['☆', '✩'], ['b', 'd'], ['6', '9'], ['M', 'W'], ['p', 'q']];
+function gameOdd() {
+  let found = 0; let end = 0; let tmr = null;
+  markOverlay();
+  openSheet(gameShell('Najdi anomálii', `<p class="muted small">Jeden symbol se liší. Najdi ho co nejrychleji. Špatné klepnutí stojí 2 sekundy. Trénuješ všímavost k detailům – základ lucidity.</p><div class="game-area" id="gArea"></div>`), sh => {
+    $('#gClose', sh).onclick = closeSheet;
+    sheetOnClose = () => clearInterval(tmr);
+    const area = $('#gArea', sh);
+    const grid = () => {
+      const size = found < 4 ? 4 : found < 10 ? 5 : 6;
+      const [a, b] = shuffle(pick(ODD_PAIRS));
+      const odd = Math.floor(Math.random() * size * size);
+      area.innerHTML = `<div class="score"><span>Nalezeno ${found}</span><span id="gT">${Math.ceil(Math.max(0, end - Date.now()) / 1000)} s</span></div>
+        <div class="odd-grid" style="grid-template-columns:repeat(${size},1fr)">${Array.from({ length: size * size }, (_, i) => `<button data-i="${i}">${i === odd ? b : a}</button>`).join('')}</div>`;
+      $$('.odd-grid button', area).forEach(btn => btn.onclick = () => {
+        if (+btn.dataset.i === odd) { found++; vibrate(10); grid(); }
+        else { end -= 2000; vibrate([30, 50, 30]); btn.style.background = 'rgba(201,122,154,.35)'; }
+      });
+    };
+    area.innerHTML = `<button class="btn primary big block" id="gStart">Start (30 s)</button>`;
+    $('#gStart', area).onclick = () => {
+      end = Date.now() + 30000; grid();
+      tmr = setInterval(() => {
+        const left = end - Date.now(); const t = $('#gT', area); if (t) t.textContent = Math.ceil(Math.max(0, left) / 1000) + ' s';
+        if (left <= 0) { clearInterval(tmr); finishGame('odd', found, 0, 'Čím víc si všímáš drobných nesrovnalostí přes den, tím spíš si všimneš i těch snových.'); }
+      }, 200);
+    };
+  });
+}
+
+/* ---------- Generátor .ics ---------- */
+const toMin = hm => { const [h, m] = String(hm || '0:0').split(':').map(Number); return (h || 0) * 60 + (m || 0); };
+function randomTimes(from, to, count) {
+  if (to <= from) to += 1440;
+  const span = to - from; const slot = span / count; const res = [];
+  for (let i = 0; i < count; i++) {
+    const lo = from + i * slot + slot * 0.12, hi = from + (i + 1) * slot - slot * 0.12;
+    res.push(Math.round(rand(lo, Math.max(lo, hi))));
+  }
+  return res;
+}
+const icsEsc = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+function icsFold(line) {
+  const enc = new TextEncoder(); let out = '', cur = '', bytes = 0;
+  for (const ch of line) {
+    const b = enc.encode(ch).length;
+    if (bytes + b > 73) { out += cur + '\r\n '; cur = ''; bytes = 1; }
+    cur += ch; bytes += b;
+  }
+  return out + cur;
+}
+const icsDT = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+const icsUTC = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+function buildICS(events, calName) {
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lucidum//Lucid Dreaming//CS', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:' + icsEsc(calName)];
+  const stamp = icsUTC(new Date());
+  events.forEach((e, i) => {
+    L.push('BEGIN:VEVENT', `UID:${uid()}-${i}@lucidum.app`, 'DTSTAMP:' + stamp, 'DTSTART:' + icsDT(e.start), 'DTEND:' + icsDT(new Date(e.start.getTime() + (e.dur || 1) * 60000)),
+      'SUMMARY:' + icsEsc(e.summary), 'DESCRIPTION:' + icsEsc(e.desc), 'TRANSP:TRANSPARENT', 'CLASS:PRIVATE');
+    if (e.alarm) L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(e.summary), 'TRIGGER:PT0S', 'END:VALARM');
+    L.push('END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  return L.map(icsFold).join('\r\n') + '\r\n';
+}
+const ICS_SUMMARIES = ['🌙 Sníš? Reality check', '✋ Spočítej prsty – sníš?', '👃 Ucpi nos a zkus dýchat', '📖 Přečti text dvakrát', '🧠 Jak ses sem dostal/a?', '✦ Zastav se: je tohle sen?', '⌚ Podívej se na čas dvakrát'];
+function buildRealityICS(start, days, from, to, count, useSigns, alarm) {
+  const signs = useSigns ? dreamSigns(10).map(x => x.word) : [];
+  const events = [];
+  for (let d = 0; d < days; d++) {
+    const base = addDays(start, d); base.setHours(0, 0, 0, 0);
+    for (const m of randomTimes(from, to, count)) {
+      const when = new Date(base.getTime()); when.setMinutes(m);
+      const t1 = pick(RC_TECHNIQUES), t2 = pick(RC_TECHNIQUES.filter(t => t !== t1));
+      let summary = pick(ICS_SUMMARIES);
+      let desc = `Zastav se a opravdu připusť, že můžeš snít.\n1) ${t1.name}: ${t1.how}\n2) ${t2.name}: ${t2.how}\nPak se rozhlédni: Je tu něco zvláštního? Kdyby to byl sen, co bys teď udělal/a?`;
+      if (signs.length && Math.random() < 0.55) {
+        const sg = pick(signs);
+        summary = `🔮 Snové znamení: ${sg} – sníš?`;
+        desc = `Ve tvých snech se často objevuje „${sg}“. Představ si, že ho právě vidíš. Sníš?\n` + desc;
+      }
+      events.push({ start: when, dur: 1, summary, desc, alarm });
+    }
+  }
+  return buildICS(events, 'Lucidum – reality checky');
+}
+
+/* ---------- Zvukový engine (Web Audio API, bez souborů) ---------- */
+const TOTEMS = [
+  { id: 'bell', name: 'Křišťálový zvonek' },
+  { id: 'bowl', name: 'Tibetská miska' },
+  { id: 'harp', name: 'Snová harfa' },
+  { id: 'drop', name: 'Vodní kapka' },
+  { id: 'pulse', name: 'Hluboký pulz' }
+];
+const AudioEngine = {
+  ctx: null, master: null, keepNode: null,
+  init() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!this.ctx) {
+      this.ctx = new AC();
+      this.master = this.ctx.createGain(); this.master.gain.value = 0.9;
+      const comp = this.ctx.createDynamicsCompressor();
+      comp.threshold.value = -16; comp.ratio.value = 4; comp.attack.value = 0.01; comp.release.value = 0.3;
+      this.master.connect(comp); comp.connect(this.ctx.destination);
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+    return this.ctx;
+  },
+  partial(freq, t0, dur, peak, out, type = 'sine', attack = 0.01, sweepTo) {
+    const c = this.ctx; const o = c.createOscillator(); const g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0);
+    if (sweepTo) o.frequency.exponentialRampToValueAtTime(sweepTo, t0 + Math.min(dur, 0.25));
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(out); o.start(t0); o.stop(t0 + dur + 0.05);
+  },
+  playTotem(kind, vol = 0.6, out) {
+    const c = this.init(); if (!c) return 0;
+    out = out || this.master; vol = clamp(vol, 0, 1);
+    const t = c.currentTime + 0.04;
+    if (kind === 'bowl') {
+      const f = 196;
+      [[1, 1, 7], [2.71, 0.45, 5], [5.15, 0.2, 3.5], [8.1, 0.08, 2]].forEach(([r, g, d]) => {
+        this.partial(f * r, t, d, vol * 0.32 * g, out, 'sine', 0.08);
+        this.partial(f * r * 1.004, t, d, vol * 0.2 * g, out, 'sine', 0.1);
+      });
+      return 7;
+    }
+    if (kind === 'harp') {
+      [523.25, 659.25, 783.99, 987.77, 1174.66].forEach((f, i) => this.partial(f, t + i * 0.16, 2.2, vol * 0.2, out, 'triangle', 0.01));
+      return 3;
+    }
+    if (kind === 'drop') {
+      this.partial(1400, t, 0.5, vol * 0.35, out, 'sine', 0.005, 620);
+      this.partial(1100, t + 0.45, 0.6, vol * 0.25, out, 'sine', 0.005, 520);
+      return 1.3;
+    }
+    if (kind === 'pulse') {
+      for (let i = 0; i < 3; i++) { this.partial(330, t + i * 0.7, 0.55, vol * 0.3, out, 'sine', 0.06); this.partial(165, t + i * 0.7, 0.6, vol * 0.25, out, 'sine', 0.06); }
+      return 2.3;
+    }
+    const f = 1046.5;
+    [[1, 1, 3.5], [2, 0.5, 2.5], [3, 0.3, 1.8], [4.2, 0.15, 1.2], [5.4, 0.08, 0.8]].forEach(([r, g, d]) => this.partial(f * r, t, d, vol * 0.33 * g, out, 'sine', 0.005));
+    return 3.6;
+  },
+  tick(freq, vol = 0.06, dur = 0.6) { const c = this.init(); if (!c) return; this.partial(freq, c.currentTime + 0.02, dur, vol, this.master, 'sine', 0.05); },
+  keepAlive(on) {
+    const c = this.init(); if (!c) return;
+    if (on && !this.keepNode) {
+      const o = c.createOscillator(); const g = c.createGain(); g.gain.value = 0.00001; o.frequency.value = 40;
+      o.connect(g); g.connect(c.destination); o.start(); this.keepNode = { o, g };
+    } else if (!on && this.keepNode) { try { this.keepNode.o.stop(); } catch (e) { /* už zastaveno */ } this.keepNode = null; }
+  }
+};
+
+/* ---------- Udržení obrazovky ---------- */
+let wakeLock = null;
+async function requestWake() {
+  if (hasNative('KeepAwake')) { try { await window.Capacitor.nativePromise('KeepAwake', 'keepAwake', {}); } catch (e) { /* ignorovat */ } }
+  try { if ('wakeLock' in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } } catch (e) { wakeLock = null; }
+}
+function releaseWake() { if (hasNative('KeepAwake')) { try { window.Capacitor.nativePromise('KeepAwake', 'allowSleep', {}).catch(() => {}); } catch (e) { /* ignorovat */ } } try { if (wakeLock) wakeLock.release(); } catch (e) { /* ignorovat */ } wakeLock = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (RT.wbtbTarget || RT.anchor)) requestWake(); });
+
+/* ---------- Běhový stav nočních nástrojů ---------- */
+let RT = { wbtbTarget: null, anchor: null, pauseTarget: null };
+function loadRT() { try { RT = Object.assign(RT, JSON.parse(localStorage.getItem(RUN_KEY)) || {}); } catch (e) { /* výchozí */ } }
+function saveRT() { try { localStorage.setItem(RUN_KEY, JSON.stringify(RT)); } catch (e) { /* ignorovat */ } }
+
+function startWBTB(minutes) {
+  AudioEngine.init(); AudioEngine.keepAlive(true);
+  RT.wbtbTarget = Date.now() + minutes * 60000; saveRT(); requestWake();
+  S.settings.wbtbMinutes = minutes; save();
+  toast(`Budík WBTB nastaven na ${fmtTime(new Date(RT.wbtbTarget))}`);
+  renderNight();
+}
+function cancelWBTB() { RT.wbtbTarget = null; saveRT(); if (!RT.anchor && !RT.pauseTarget) { AudioEngine.keepAlive(false); releaseWake(); } renderNight(); }
+
+let alarmLoop = null, alarmGain = null, alarmEnd = 0, alarmUI = null;
+function fireAlarm() {
+  RT.wbtbTarget = null; saveRT();
+  S.counters.wbtb++; dataChanged();
+  const c = AudioEngine.init();
+  const fade = clamp(S.settings.wbtbFade, 10, 300); const vol = S.settings.wbtbVol;
+  closeNightScreen();
+  const scr = $('#alarmScreen');
+  scr.innerHTML = `<div class="pulse-ring">🌙</div><h2>Čas na WBTB</h2>
+    <p class="muted" style="max-width:360px">Tiše se probuď. Neotevírej sociální sítě. Zvuk se sám ztiší za <b id="alLeft">${fade}</b> s.</p>
+    <button class="btn gold big block" style="max-width:360px" id="alStop">Jsem vzhůru – ztišit</button>`;
+  scr.classList.add('open'); markOverlay();
+  $('#alStop').onclick = () => stopAlarm(true);
+  if (c) {
+    alarmGain = c.createGain(); alarmGain.connect(AudioEngine.master);
+    const t = c.currentTime;
+    alarmGain.gain.setValueAtTime(0.0001, t);
+    alarmGain.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), t + Math.min(15, fade * 0.4));
+    alarmGain.gain.setValueAtTime(Math.max(0.001, vol), t + Math.max(fade - 6, fade * 0.6));
+    alarmGain.gain.exponentialRampToValueAtTime(0.0001, t + fade);
+    const play = () => AudioEngine.playTotem(S.settings.totem, 1, alarmGain);
+    play(); alarmLoop = setInterval(play, 4200);
+  }
+  alarmEnd = Date.now() + fade * 1000;
+  alarmUI = setInterval(() => {
+    const left = Math.ceil((alarmEnd - Date.now()) / 1000);
+    const el = $('#alLeft'); if (el) el.textContent = Math.max(0, left);
+    if (left <= 0) stopAlarm(false);
+  }, 500);
+  vibrate([200, 300, 200]);
+}
+function stopAlarm(byUser) {
+  clearInterval(alarmLoop); clearInterval(alarmUI); alarmLoop = alarmUI = null;
+  if (alarmGain && AudioEngine.ctx) {
+    const t = AudioEngine.ctx.currentTime;
+    try { alarmGain.gain.cancelScheduledValues(t); alarmGain.gain.setValueAtTime(Math.max(0.0001, alarmGain.gain.value), t); alarmGain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2); } catch (e) { /* ignorovat */ }
+    const g = alarmGain; setTimeout(() => { try { g.disconnect(); } catch (e) { /* ignorovat */ } }, 1500);
+    alarmGain = null;
+  }
+  const scr = $('#alarmScreen');
+  if (!scr.classList.contains('open')) return;
+  scr.innerHTML = `<h2>Bdělá pauza</h2>
+    <div class="panel" style="max-width:420px;text-align:left">
+      <ol class="steps"><li>Zůstaň 15–40 minut vzhůru při tlumeném světle.</li><li>Zapiš si sen, který právě skončil – je to tvoje nejčerstvější snová stopa.</li><li>Přečti si něco o lucidním snění nebo své snové znamení.</li><li>Vrať se do postele s technikou MILD nebo WILD: „Až budu příště snít, uvědomím si, že sním.“</li></ol>
+    </div>
+    <button class="btn primary big block" style="max-width:420px" id="alPause">Odpočet pauzy 20 minut</button>
+    <button class="btn big block" style="max-width:420px" id="alDream">Zapsat sen</button>
+    <button class="btn ghost block" style="max-width:420px" id="alClose">Zavřít</button>`;
+  $('#alPause').onclick = () => { RT.pauseTarget = Date.now() + 20 * 60000; saveRT(); requestWake(); scr.classList.remove('open'); toast('Za 20 minut tě jemně upozorním: zpátky do postele'); renderNight(); };
+  $('#alDream').onclick = () => { scr.classList.remove('open'); switchTab('journal'); openEditor(); };
+  $('#alClose').onclick = () => { scr.classList.remove('open'); if (!RT.anchor && !RT.pauseTarget) { AudioEngine.keepAlive(false); releaseWake(); } renderNight(); };
+  if (!byUser) toast('Zvuk se sám ztišil');
+}
+
+function startAnchor() {
+  const s = S.settings;
+  AudioEngine.init(); AudioEngine.keepAlive(true); requestWake();
+  RT.anchor = { next: Date.now() + s.anchorDelay * 60000, left: s.anchorReps, every: s.anchorEvery, vol: s.anchorVol, sound: s.totem };
+  saveRT(); S.counters.anchors++; save();
+  toast(`Noční kotva začne za ${s.anchorDelay} min`);
+  renderNight();
+}
+function stopAnchor() { RT.anchor = null; saveRT(); if (!RT.wbtbTarget && !RT.pauseTarget) { AudioEngine.keepAlive(false); releaseWake(); } renderNight(); }
+
+/* hlavní noční smyčka */
+function nightTick() {
+  const now = Date.now();
+  if (RT.wbtbTarget && now >= RT.wbtbTarget) fireAlarm();
+  if (RT.pauseTarget && now >= RT.pauseTarget) {
+    RT.pauseTarget = null; saveRT();
+    AudioEngine.playTotem('harp', 0.35);
+    toast('Pauza skončila – zpátky do postele s technikou MILD 🌙', 5000);
+    if (!RT.anchor && !RT.wbtbTarget) { AudioEngine.keepAlive(false); releaseWake(); }
+    if (activeTab === 'night') renderNight();
+  }
+  if (RT.anchor && now >= RT.anchor.next) {
+    AudioEngine.playTotem(RT.anchor.sound, RT.anchor.vol);
+    RT.anchor.left--; RT.anchor.next = now + RT.anchor.every * 60000;
+    if (RT.anchor.left <= 0) { RT.anchor = null; if (!RT.wbtbTarget && !RT.pauseTarget) { AudioEngine.keepAlive(false); releaseWake(); } }
+    saveRT(); if (activeTab === 'night') renderNight();
+  }
+  const cd = $('#wbCount'); if (cd && RT.wbtbTarget) cd.textContent = fmtDur(RT.wbtbTarget - now);
+  const pc = $('#pauseCount'); if (pc && RT.pauseTarget) pc.textContent = fmtDur(RT.pauseTarget - now);
+  const an = $('#anchorStatus'); if (an && RT.anchor) an.textContent = `Další tón za ${fmtDur(RT.anchor.next - now)} · zbývá ${RT.anchor.left}×`;
+  if ($('#nightScreen').classList.contains('open')) updateNightScreen();
+}
+
+/* ---------- Noční displej ---------- */
+function openNightScreen() { $('#nightScreen').classList.add('open'); updateNightScreen(); requestWake(); markOverlay(); }
+function closeNightScreen() { $('#nightScreen').classList.remove('open'); if (!RT.wbtbTarget && !RT.anchor && !RT.pauseTarget) releaseWake(); }
+function updateNightScreen() {
+  const now = new Date(); $('#nightClock').textContent = fmtTime(now);
+  const parts = [];
+  if (RT.wbtbTarget) parts.push(`WBTB za ${fmtDur(RT.wbtbTarget - now.getTime())}`);
+  if (RT.pauseTarget) parts.push(`Pauza ${fmtDur(RT.pauseTarget - now.getTime())}`);
+  if (RT.anchor) parts.push(`Kotva za ${fmtDur(RT.anchor.next - now.getTime())}`);
+  $('#nightInfo').textContent = parts.join(' · ');
+}
+(function bindNightScreen() {
+  let last = 0;
+  document.addEventListener('DOMContentLoaded', () => {
+    $('#nightScreen').addEventListener('click', () => { const n = Date.now(); if (n - last < 450) closeNightScreen(); last = n; });
+  });
+})();
+
+/* ---------- Večerní rituál ---------- */
+const RITUAL_ITEMS = [
+  { id: 'rc', t: 'Dnes jsem udělal/a aspoň 5 reality checků' },
+  { id: 'bed', t: 'Deník (telefon) mám připravený u postele' },
+  { id: 'review', t: 'Přečetl/a jsem si své snové znamení a 1–2 staré sny' },
+  { id: 'intent', t: 'Napsal/a jsem si záměr a plán pro lucidní sen' },
+  { id: 'screen', t: 'Poslední hodinu bez ostrého světla obrazovek' },
+  { id: 'breath', t: 'Zklidnil/a jsem tělo dechem' },
+  { id: 'tools', t: 'Nastavil/a jsem WBTB nebo noční kotvu (volitelné)' }
+];
+const AFFIRMATIONS = [
+  'Až budu příště snít, uvědomím si, že sním.',
+  'Každá zvláštnost je pro mě znamení, že sním.',
+  'Ráno si vzpomenu na své sny jasně a živě.',
+  'Moje mysl zůstává bdělá, zatímco tělo usíná.',
+  'Dnes v noci poznám sen a zůstanu v něm klidný/á.',
+  'Když se podívám na ruce, uvědomím si, že sním.',
+  'Mám čas. Usínám s lehkostí a jasnou myslí.'
+];
+const ritualKey = () => dayKey(new Date(Date.now() - 6 * 3600e3));
+function ritual() { const k = ritualKey(); if (!S.rituals[k]) S.rituals[k] = { done: [], intent: '', plan: '' }; return S.rituals[k]; }
+let affIdx = Math.floor(Math.random() * AFFIRMATIONS.length);
+
+/* ---------- Dechové cvičení ---------- */
+const BREATH = {
+  '478': { name: '4-7-8 uklidnění', phases: [['Nádech', 4, 1], ['Zádrž', 7, 0], ['Výdech', 8, -1]] },
+  'box': { name: 'Čtvercový dech', phases: [['Nádech', 4, 1], ['Zádrž', 4, 0], ['Výdech', 4, -1], ['Zádrž', 4, 0]] },
+  'res': { name: 'Rezonanční 5-5', phases: [['Nádech', 5, 1], ['Výdech', 5, -1]] },
+  'wild': { name: 'Uvolnění pro WILD', phases: [['Nádech', 4, 1], ['Výdech', 8, -1]] }
+};
+function openBreath() {
+  const s = S.settings; const pat = BREATH[s.breathPattern] || BREATH['478'];
+  let timer = null; let endAt = 0; let i = 0; let running = false;
+  markOverlay();
+  openSheet(`<div class="sheet-head"><h2>${esc(pat.name)}</h2><button class="icon-btn" id="bClose" aria-label="Zavřít"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="breath-stage"><div class="breath-circle" id="bCircle"></div><div class="breath-label" id="bLabel">Připrav se<small>${s.breathMinutes} min</small></div></div>
+    <p class="muted small center">Dýchej nosem, výdech pomalý a úplný. Tělo těžkne, mysl zůstává bdělá.</p>
+    <button class="btn primary big block" id="bGo">Začít</button>`, sh => {
+    const circle = $('#bCircle', sh), label = $('#bLabel', sh);
+    const stop = () => { clearTimeout(timer); running = false; };
+    sheetOnClose = stop;
+    $('#bClose', sh).onclick = closeSheet;
+    const phase = () => {
+      if (!running) return;
+      if (Date.now() >= endAt && i % pat.phases.length === 0) {
+        running = false; S.counters.breath++; dataChanged();
+        label.innerHTML = 'Hotovo 🌙<small>Krásné sny</small>'; circle.style.transitionDuration = '2s'; circle.style.transform = 'scale(1)';
+        $('#bGo', sh).textContent = 'Znovu'; $('#bGo', sh).classList.remove('hidden');
+        if (s.breathSound) AudioEngine.playTotem('bowl', 0.25);
+        return;
+      }
+      const [name, sec, dir] = pat.phases[i % pat.phases.length];
+      circle.style.transitionDuration = sec + 's';
+      if (dir === 1) circle.style.transform = 'scale(1.9)';
+      if (dir === -1) circle.style.transform = 'scale(1)';
+      let left = sec;
+      label.innerHTML = `${name}<small>${left}</small>`;
+      if (s.breathSound) AudioEngine.tick(dir === 1 ? 392 : dir === -1 ? 294 : 330, 0.05, 0.7);
+      const countdown = () => { left--; if (left > 0 && running) { label.innerHTML = `${name}<small>${left}</small>`; timer = setTimeout(countdown, 1000); } else { i++; phase(); } };
+      timer = setTimeout(countdown, 1000);
+    };
+    $('#bGo', sh).onclick = () => {
+      AudioEngine.init(); i = 0; running = true; endAt = Date.now() + s.breathMinutes * 60000;
+      $('#bGo', sh).classList.add('hidden'); phase();
+    };
+  });
+}
+
+/* ---------- Záložka Noc ---------- */
+function renderNight() {
+  const v = $('#v-night'); const s = S.settings; const r = ritual();
+  const done = r.done.length; const now = Date.now();
+  const rcAuto = rcToday() >= 5;
+  if (rcAuto && !r.done.includes('rc')) { r.done.push('rc'); save(); }
+  const signs = dreamSigns(3).map(x => x.word);
+  const aff = AFFIRMATIONS[affIdx % AFFIRMATIONS.length];
+  const totemName = (TOTEMS.find(t => t.id === s.totem) || TOTEMS[0]).name;
+  v.innerHTML = `
+    <div class="section">
+      <div class="section-head"><h3>Večerní rituál</h3><span>${done}/${RITUAL_ITEMS.length}</span></div>
+      <div class="panel">
+        <div class="affirm" id="affText">„${esc(aff)}“</div>
+        <div class="row" style="justify-content:center;margin-bottom:8px"><button class="btn sm ghost" id="affNext">Další afirmace</button></div>
+        ${RITUAL_ITEMS.map(it => `<button class="checkrow ${r.done.includes(it.id) ? 'on' : ''}" data-ri="${it.id}"><span class="box">${r.done.includes(it.id) ? '✓' : ''}</span><span>${esc(it.t)}</span></button>`).join('')}
+        <label class="field" style="margin-top:14px"><span>Záměr na dnešní noc</span><textarea id="riIntent" rows="2" placeholder="Dnes v noci si uvědomím, že sním, když uvidím ${esc(signs[0] || 'něco zvláštního')}.">${esc(r.intent)}</textarea></label>
+        <label class="field" style="margin-top:10px"><span>Co udělám, až zlucidním</span><textarea id="riPlan" rows="2" placeholder="Např. promnu si ruce, vyletím nad město a najdu svého snového průvodce.">${esc(r.plan)}</textarea></label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3>Dechové zklidnění</h3></div>
+      <div class="panel stack">
+        <div class="chips" id="brPat">${Object.entries(BREATH).map(([k, b]) => `<button class="chip ${s.breathPattern === k ? 'on' : ''}" data-bp="${k}">${esc(b.name)}</button>`).join('')}</div>
+        <label class="field"><span>Délka: <b id="brMinL">${s.breathMinutes}</b> min</span><input type="range" id="brMin" min="1" max="15" value="${s.breathMinutes}"></label>
+        <label class="switch"><span>Jemné tóny při změně fáze</span><input type="checkbox" id="brSnd" ${s.breathSound ? 'checked' : ''}><span class="track"></span></label>
+        <button class="btn primary big block" id="brGo">Spustit dechové cvičení</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3>WBTB budík</h3><span>probuzení v REM fázi</span></div>
+      <div class="panel stack">
+        ${RT.wbtbTarget ? `
+          <p class="center muted small" style="margin:0">Jemné probuzení v ${fmtTime(new Date(RT.wbtbTarget))}</p>
+          <div class="countdown" id="wbCount">${fmtDur(RT.wbtbTarget - now)}</div>
+          <button class="btn big block" id="wbNight">Noční displej (ztmavit)</button>
+          <div class="row"><button class="btn grow sm" id="wbIcs">Pojistka v kalendáři</button><button class="btn danger grow sm" id="wbCancel">Zrušit budík</button></div>`
+        : `
+          <p class="muted small" style="margin:0">Spánkové cykly trvají asi 90 minut. Probuzení po 4,5 nebo 6 hodinách tě zastihne blízko dlouhé ranní REM fáze.</p>
+          <div class="chips" id="wbPresets">${[[270, '4,5 h'], [360, '6 h'], [450, '7,5 h'], [300, '5 h']].map(([m, l]) => `<button class="chip ${s.wbtbMinutes === m ? 'on' : ''}" data-m="${m}">${l}</button>`).join('')}</div>
+          <label class="field"><span>Vlastní: <b id="wbMinL">${Math.floor(s.wbtbMinutes / 60)} h ${s.wbtbMinutes % 60} min</b> → zazvoní v <b id="wbAt"></b></span><input type="range" id="wbMin" min="15" max="600" step="15" value="${s.wbtbMinutes}"></label>
+          <label class="field"><span>Automaticky ztišit po: <b id="wbFadeL">${s.wbtbFade}</b> s</span><input type="range" id="wbFade" min="15" max="180" step="5" value="${s.wbtbFade}"></label>
+          <label class="field"><span>Hlasitost</span><input type="range" id="wbVol" min="0.1" max="1" step="0.05" value="${s.wbtbVol}"></label>
+          <button class="btn gold big block" id="wbStart">Spustit WBTB odpočet</button>
+          <p class="muted small" style="margin:0">Zvuk: ${esc(totemName)} (mění se v Audio totemu). Nech aplikaci otevřenou, telefon na nabíječce – obrazovka se drží zapnutá a můžeš ji ztmavit. Pro jistotu přidej i „Pojistku v kalendáři“.</p>
+          <button class="btn sm block" id="wbIcs">Pojistka v kalendáři (.ics budík)</button>`}
+        ${RT.pauseTarget ? `<div class="banner center"><p class="small muted" style="margin:0">Bdělá pauza</p><div class="countdown" style="font-size:2.2rem" id="pauseCount">${fmtDur(RT.pauseTarget - now)}</div><button class="btn sm ghost" id="pauseStop">Ukončit pauzu</button></div>` : ''}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3>Audio totem</h3><span>zvuková kotva</span></div>
+      <div class="panel stack">
+        <p class="muted small" style="margin:0">Vyber si jeden tón a přehrávej ho při každém reality checku. Mozek si ho spojí s otázkou „Sním?“. V noci pak velmi tiché opakování (noční kotva) může zaznít ve snu a připomenout ti, že sníš.</p>
+        <div class="chips" id="toSel">${TOTEMS.map(t => `<button class="chip gold ${s.totem === t.id ? 'on' : ''}" data-t="${t.id}">${esc(t.name)}</button>`).join('')}</div>
+        <label class="field"><span>Hlasitost</span><input type="range" id="toVol" min="0.05" max="1" step="0.05" value="${s.totemVol}"></label>
+        <button class="btn primary big block" id="toPlay">▶ Přehrát totem</button>
+        <label class="switch"><span>Přehrát při každém reality checku</span><input type="checkbox" id="toRC" ${s.totemOnRC ? 'checked' : ''}><span class="track"></span></label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h3>Noční kotva</h3><span>tichý cue během REM</span></div>
+      <div class="panel stack">
+        ${RT.anchor ? `<p class="center" id="anchorStatus">Další tón za ${fmtDur(RT.anchor.next - now)} · zbývá ${RT.anchor.left}×</p><button class="btn big block" id="anNight">Noční displej</button><button class="btn danger block" id="anStop">Zastavit kotvu</button>` : `
+        <label class="field"><span>Začít za: <b id="anDelL">${s.anchorDelay}</b> min</span><input type="range" id="anDel" min="5" max="240" step="5" value="${s.anchorDelay}"></label>
+        <label class="field"><span>Opakovat každých: <b id="anEvL">${s.anchorEvery}</b> min</span><input type="range" id="anEv" min="3" max="45" value="${s.anchorEvery}"></label>
+        <label class="field"><span>Počet tónů: <b id="anRepL">${s.anchorReps}</b></span><input type="range" id="anRep" min="1" max="20" value="${s.anchorReps}"></label>
+        <label class="field"><span>Hlasitost (měla by tě nevzbudit)</span><input type="range" id="anVol" min="0.02" max="0.6" step="0.02" value="${s.anchorVol}"></label>
+        <div class="row"><button class="btn grow" id="anTest">Vyzkoušet</button><button class="btn primary grow" id="anStart">Spustit kotvu</button></div>
+        <p class="muted small" style="margin:0">Tip: po WBTB nastav začátek za 20–30 minut, interval 10–15 minut.</p>`}
+      </div>
+    </div>`;
+
+  // rituál
+  $('#affNext').onclick = () => { affIdx++; $('#affText').textContent = `„${AFFIRMATIONS[affIdx % AFFIRMATIONS.length]}“`; };
+  $$('[data-ri]', v).forEach(b => b.onclick = () => {
+    const id = b.dataset.ri; const rr = ritual();
+    const i = rr.done.indexOf(id); if (i >= 0) rr.done.splice(i, 1); else rr.done.push(id);
+    b.classList.toggle('on'); $('.box', b).textContent = b.classList.contains('on') ? '✓' : ''; vibrate(8);
+    dataChanged();
+    v.querySelector('.section-head span').textContent = `${rr.done.length}/${RITUAL_ITEMS.length}`;
+    if (rr.done.length === RITUAL_ITEMS.length) toast('🕯️ Rituál dokončen. Klidnou noc.');
+  });
+  const riSave = () => { const rr = ritual(); rr.intent = $('#riIntent').value; rr.plan = $('#riPlan').value; if ((rr.intent.trim() || rr.plan.trim()) && !rr.done.includes('intent')) { rr.done.push('intent'); const row = $('[data-ri=intent]', v); row.classList.add('on'); $('.box', row).textContent = '✓'; } save(); };
+  $('#riIntent').oninput = riSave; $('#riPlan').oninput = riSave;
+
+  // dech
+  $$('[data-bp]', v).forEach(b => b.onclick = () => { s.breathPattern = b.dataset.bp; $$('[data-bp]', v).forEach(x => x.classList.toggle('on', x === b)); save(); });
+  $('#brMin').oninput = e => { s.breathMinutes = +e.target.value; $('#brMinL').textContent = s.breathMinutes; save(); };
+  $('#brSnd').onchange = e => { s.breathSound = e.target.checked; save(); };
+  $('#brGo').onclick = openBreath;
+
+  // WBTB
+  const wbIcs = () => {
+    const m = RT.wbtbTarget ? null : s.wbtbMinutes;
+    const at = RT.wbtbTarget ? new Date(RT.wbtbTarget) : new Date(Date.now() + m * 60000);
+    const ics = buildICS([{ start: at, dur: 5, summary: '🌙 WBTB – tiché probuzení', desc: 'Zůstaň 20–40 minut vzhůru, zapiš sen, pak MILD: „Až budu příště snít, uvědomím si, že sním.“', alarm: true }], 'Lucidum – WBTB');
+    saveFile(`lucidum-wbtb-${fmtTime(at).replace(':', '')}.ics`, ics, 'text/calendar');
+  };
+  if (RT.wbtbTarget) {
+    $('#wbNight').onclick = openNightScreen;
+    $('#wbCancel').onclick = cancelWBTB;
+    $('#wbIcs').onclick = wbIcs;
+  } else {
+    const updAt = () => { $('#wbAt').textContent = fmtTime(new Date(Date.now() + s.wbtbMinutes * 60000)); $('#wbMinL').textContent = `${Math.floor(s.wbtbMinutes / 60)} h ${s.wbtbMinutes % 60} min`; };
+    updAt();
+    $$('#wbPresets .chip').forEach(b => b.onclick = () => { s.wbtbMinutes = +b.dataset.m; $('#wbMin').value = s.wbtbMinutes; $$('#wbPresets .chip').forEach(x => x.classList.toggle('on', x === b)); updAt(); save(); });
+    $('#wbMin').oninput = e => { s.wbtbMinutes = +e.target.value; $$('#wbPresets .chip').forEach(x => x.classList.toggle('on', +x.dataset.m === s.wbtbMinutes)); updAt(); save(); };
+    $('#wbFade').oninput = e => { s.wbtbFade = +e.target.value; $('#wbFadeL').textContent = s.wbtbFade; save(); };
+    $('#wbVol').oninput = e => { s.wbtbVol = +e.target.value; save(); };
+    $('#wbVol').onchange = () => AudioEngine.playTotem(s.totem, s.wbtbVol);
+    $('#wbStart').onclick = () => startWBTB(s.wbtbMinutes);
+    $('#wbIcs').onclick = wbIcs;
+  }
+  if ($('#pauseStop')) $('#pauseStop').onclick = () => { RT.pauseTarget = null; saveRT(); renderNight(); };
+
+  // totem
+  $$('#toSel .chip').forEach(b => b.onclick = () => { s.totem = b.dataset.t; $$('#toSel .chip').forEach(x => x.classList.toggle('on', x === b)); save(); AudioEngine.playTotem(s.totem, s.totemVol); });
+  $('#toVol').oninput = e => { s.totemVol = +e.target.value; save(); };
+  $('#toPlay').onclick = () => AudioEngine.playTotem(s.totem, s.totemVol);
+  $('#toRC').onchange = e => { s.totemOnRC = e.target.checked; save(); };
+
+  // kotva
+  if (RT.anchor) { $('#anStop').onclick = stopAnchor; $('#anNight').onclick = openNightScreen; }
+  else {
+    const bindR = (id, key, lab) => { $('#' + id).oninput = e => { s[key] = +e.target.value; if (lab) $('#' + lab).textContent = s[key]; save(); }; };
+    bindR('anDel', 'anchorDelay', 'anDelL'); bindR('anEv', 'anchorEvery', 'anEvL'); bindR('anRep', 'anchorReps', 'anRepL'); bindR('anVol', 'anchorVol');
+    $('#anTest').onclick = () => AudioEngine.playTotem(s.totem, s.anchorVol);
+    $('#anStart').onclick = startAnchor;
+  }
+}
+
+/* ---------- Akademie ---------- */
+const ACADEMY = [
+  { id: 'rem', ic: '🧬', group: 'Základy', title: 'Spánek a REM fáze', time: '4 min',
+    intro: 'Spánek probíhá v cyklech dlouhých zhruba 90 minut. Každý cyklus prochází lehkým spánkem, hlubokým spánkem a fází REM (rychlé pohyby očí), ve které vznikají nejživější a nejpříběhovější sny. Na začátku noci převažuje hluboký spánek, ráno se REM fáze prodlužují až na 30–60 minut. Proto je ráno pro lucidní snění zlatý čas.',
+    steps: ['Usneš a během prvních dvou cyklů převládá hluboký regenerační spánek. Sny jsou krátké a útržkovité.', 'Kolem 4,5–6 hodin spánku se REM fáze výrazně prodlužují a sny jsou živější.', 'Mezi cykly se na chvilku téměř probudíš – tyto mikro-probuzení jsou ideální okamžik pro techniky MILD a WILD.', 'Ráno, po 6–7,5 hodinách, přichází nejdelší REM fáze. Tady vzniká většina lucidních snů.'],
+    do: ['Plánuj techniky na druhou polovinu noci.', 'Spi dost – každá zkrácená noc ubírá právě ranní REM.', 'Využívej přirozená probuzení k zapamatování snu.'],
+    dont: ['Nesnaž se o lucidní sen hned po usnutí, když jsi unavený/á.', 'Neber alkohol před spaním – potlačuje REM spánek.', 'Neobětuj zdravý spánek kvůli technikám každou noc.'],
+    tip: 'Násobky 90 minut (4,5 / 6 / 7,5 h) jsou jen orientační. Sleduj ve deníku, po kolika hodinách se ti sny vybavují nejlépe, a WBTB podle toho dolaď.' },
+  { id: 'hygiene', ic: '🛏️', group: 'Základy', title: 'Spánková hygiena', time: '3 min',
+    intro: 'Lucidní snění stojí na kvalitním spánku. Unavený, nevyspalý mozek si sny nepamatuje a v REM fázi zůstává méně „bdělého“ vědomí. Pravidelnost je důležitější než jakákoli technika.',
+    steps: ['Choď spát a vstávej ve stejný čas, i o víkendu (±30 minut).', 'Hodinu před spaním ztlum světla a omez obrazovky – nebo aspoň zapni noční režim a ztmav displej.', 'Ložnice tmavá, tichá a chladnější (asi 17–19 °C).', 'Kofein nejpozději po obědě, těžké jídlo a alkohol ne pozdě večer.', 'Před spaním si udělej krátký rituál: dech, záměr, afirmace.'],
+    do: ['Drž pravidelný rytmus.', 'Ráno se vystav dennímu světlu.', 'Dej si 5 minut na zklidnění, než zhasneš.'],
+    dont: ['Nescrolluj v posteli sociální sítě.', 'Nepoužívej WBTB, když jsi nemocný/á nebo dlouhodobě nevyspalý/á.', 'Neházej spánek pod autobus kvůli výsledkům – lucidita přijde s odpočinutou myslí.'],
+    tip: 'Pokud se ti nedaří, dej technikám pauzu a jen týden zapisuj sny a spi pravidelně. Často to samo spustí první lucidní sen.' },
+  { id: 'journal', ic: '📓', group: 'Základy', title: 'Snový deník a vybavování', time: '3 min',
+    intro: 'Bez vzpomínek na sny jsou lucidní sny k ničemu – zapomeneš je. Deník trénuje paměť snů a hlavně odhaluje tvoje snová znamení: motivy, které se opakují a dají se použít jako spouštěč lucidity.',
+    steps: ['Po probuzení se nehýbej a neotvírej oči. Vybav si poslední obraz a jdi pozpátku po ději.', 'Zapiš klíčová slova hned – klidně diktátem. Uhlazení textu nech na aplikaci.', 'Doplň emoce, místa, postavy a živost snu.', 'Jednou týdně projdi snová znamení a vyber si jedno, na které se zaměříš.'],
+    do: ['Piš každé ráno, i když si pamatuješ jen útržek nebo pocit.', 'Při nočním probuzení zapiš aspoň pár slov.', 'Piš v přítomném čase – vybavuje se víc detailů.'],
+    dont: ['Nevstávej hned z postele – pohyb vymazává vzpomínky.', 'Nehodnoť sny jako „hloupé“. Každý zápis posiluje paměť.', 'Neodkládej zápis na později.'],
+    tip: 'Večer si řekni: „Ráno si vzpomenu na své sny.“ Tahle jednoduchá autosugesce překvapivě funguje.' },
+  { id: 'rc', ic: '✋', group: 'Techniky', title: 'Reality checky (DILD)', time: '4 min',
+    intro: 'Reality check je otázka „Sním?“ podpořená testem. Když si ho vypěstuješ jako zvyk během dne, začneš ho dělat i ve snu – a test ti odhalí, že sníš. Většina lucidních snů začínačníků vzniká právě takhle (DILD – sen, který zlucidníš během snu).',
+    steps: ['Dělej 10–15 testů denně, ideálně v náhodných časech (pomůže .ics generátor).', 'Testuj vždy, když se stane něco zvláštního, nebo vidíš své snové znamení.', 'Kombinuj dva testy – např. ucpaný nos a pohled na ruce.', 'Během testu opravdu očekávej, že by to mohl být sen. Rozhlédni se po anomáliích.', 'Na závěr si představ: „Kdyby to byl sen, co bych teď dělal/a?“'],
+    do: ['Kvalita je víc než kvantita – každý test s plnou pozorností.', 'Spoj test s audio totemem.', 'Testuj i ihned po probuzení (falešná probuzení jsou častá).'],
+    dont: ['Nedělej testy mechanicky bez pochybnosti.', 'Nespoléhej na jediný test.', 'Neber test jako povinnost – zvídavost je motorem.'],
+    tip: 'Zkus „mini-RC“ pokaždé, když projdeš dveřmi. Dveře jsou ve snech velmi častým přechodem scén.' },
+  { id: 'mild', ic: '🎯', group: 'Techniky', title: 'MILD – mnemotechnika', time: '5 min',
+    intro: 'MILD (Mnemonic Induction of Lucid Dreams) vyvinul Stephen LaBerge. Využívá prospektivní paměť – stejnou schopnost, díky které si vzpomeneš koupit cestou domů chleba. Do mysli si „naprogramuješ“ záměr uvědomit si sen. Ve studiích patří k nejúspěšnějším technikám, hlavně v kombinaci s WBTB.',
+    steps: ['Probuď se ze snu (přirozeně nebo po WBTB) a vybav si ho co nejpodrobněji.', 'Najdi v něm snové znamení – něco divného, co tě mělo upozornit.', 'Opakuj si v duchu s plným významem: „Až budu příště snít, uvědomím si, že sním.“', 'Představ si, že jsi zpátky v tom snu, všimneš si znamení, uděláš reality check a zlucidníš. Prožij to živě.', 'Opakuj záměr a vizualizaci, dokud neusneš, nebo dokud ti v hlavě nezůstane jako poslední myšlenka.'],
+    do: ['Vkládej do záměru emoce a skutečné přání.', 'Pokud nevíš, co se ti zdálo, použij sen z deníku.', 'Kombinuj s WBTB (pauza 10–30 minut).'],
+    dont: ['Neopakuj frázi jako mantru bez obsahu.', 'Nenech se rozptýlit jinými myšlenkami – vždy se jemně vrať.', 'Nenuť se usnout, nech záměr odplout se spánkem.'],
+    tip: 'Afirmace z večerního rituálu a „Plán v lucidním snu“ jsou přímá příprava na MILD. Čím konkrétnější plán, tím silnější záměr.' },
+  { id: 'wbtb', ic: '⏰', group: 'Techniky', title: 'WBTB – vzbuď se a jdi spát', time: '3 min',
+    intro: 'Wake Back To Bed sám o sobě lucidní sen nevyvolá, ale výrazně zesílí všechny ostatní techniky. Krátké probuzení před dlouhou ranní REM fází zvýší bdělost mozku a usneš rovnou do živého snu.',
+    steps: ['Nastav budík WBTB na 4,5–6 hodin po usnutí (záložka Noc).', 'Po probuzení vstaň a zůstaň vzhůru 15–40 minut při tlumeném světle.', 'Zapiš sen, přečti si něco o lucidním snění, projdi snová znamení.', 'Vrať se do postele a použij MILD, WILD nebo SSILD.'],
+    do: ['Experimentuj s délkou pauzy – někomu stačí 5 minut, jiný potřebuje 45.', 'Mluv a pohybuj se minimálně.', 'Používej max. 2–3× týdně, ať nenarušíš spánek.'],
+    dont: ['Nesahej po sociálních sítích a jasném displeji.', 'Nepij kávu (pokud nevíš, že ti nevadí v malé dávce).', 'Nepoužívej WBTB před důležitým dnem, když potřebuješ maximální výkon.'],
+    tip: 'Ve dny volna je WBTB nejsilnější: ráno si můžeš dovolit delší ranní spánek s dlouhými REM fázemi.' },
+  { id: 'wild', ic: '🌀', group: 'Pokročilé', title: 'WILD – vědomé usnutí', time: '6 min',
+    intro: 'Wake Initiated Lucid Dream: přejdeš z bdělosti přímo do snu, aniž bys ztratil/a vědomí. Tělo usne, mysl zůstane vzhůru. Je to náročnější technika, ale přináší velmi jasné lucidní sny. Nejlépe funguje po WBTB.',
+    steps: ['Lehni si do pohodlné polohy (často na záda) a uvolni tělo dechem 4-8.', 'Postupně uvolňuj svaly od prstů nohou po hlavu. Přestaň se hýbat.', 'Pozoruj hypnagogické obrazy, světla a zvuky za víčky – jen je nech plynout.', 'Mohou přijít vibrace, bzučení nebo pocit tíhy. Je to normální přechod. Zůstaň klidný/á a zvědavý/á.', 'Jakmile se obrazy spojí do scény, „vstup“ do ní – představ si, že se jí dotkneš nebo do ní vplaveš.'],
+    do: ['Zkoušej po WBTB, ne večer po usnutí.', 'Udržuj mírnou pozornost – jako když sleduješ film koutkem oka.', 'Pokud usneš, nevadí – ráno to zkus znovu.'],
+    dont: ['Nesnaž se o přechod příliš usilovně, napětí tě probudí.', 'Nepanikař při spánkové paralýze – je neškodná a za chvíli odezní.', 'Nekontroluj neustále, jestli už spíš.'],
+    tip: 'Dechové cvičení „Uvolnění pro WILD“ v záložce Noc je navržené přesně pro tuhle fázi.' },
+  { id: 'ssild', ic: '🔁', group: 'Pokročilé', title: 'SSILD – smyslové cykly', time: '4 min',
+    intro: 'Senses Initiated Lucid Dream je jednoduchá technika, ve které cyklicky přesouváš pozornost mezi zrak, sluch a tělesné pocity. Je uvolněná, bez tlaku, a výborně kombinovatelná s WBTB. Často spustí WILD nebo lucidní sen po usnutí.',
+    steps: ['Po WBTB si lehni do pohodlné polohy, zavři oči.', 'Zrak: 5–10 sekund pozoruj tmu za víčky, nic neočekávej.', 'Sluch: 5–10 sekund poslouchej zvuky okolí a uvnitř hlavy.', 'Tělo: 5–10 sekund vnímej tíhu, teplotu, mravenčení.', 'Udělej 4–6 rychlých cyklů, pak 3–4 pomalé (30 s na smysl). Pak usni v pohodlné poloze se záměrem uvědomit si sen.'],
+    do: ['Buď lhostejný/á k výsledku – jen pozoruj.', 'Po probuzení udělej reality check (falešná probuzení jsou u SSILD častá).', 'Opakuj několik nocí po sobě.'],
+    dont: ['Nesnaž se nic vidět ani slyšet násilím.', 'Nepočítej sekundy přesně – stačí odhad.', 'Nenech se zklamat první nocí.'],
+    tip: 'Pokud během cyklů začneš usínat, nech se a jen si zopakuj: „Až budu snít, uvědomím si to.“' },
+  { id: 'fild', ic: '☝️', group: 'Pokročilé', title: 'FILD – technika prstů', time: '3 min',
+    intro: 'Finger Induced Lucid Dream je rychlá technika pro chvíle, kdy se ráno probudíš velmi ospalý/á. Drobný pohyb prstů udržuje kapku vědomí, zatímco tělo znovu usíná do REM.',
+    steps: ['Po probuzení (ideálně po 6+ hodinách) zůstaň ležet bez pohybu.', 'Ukazovákem a prostředníčkem pravé ruky dělej nepatrné pohyby, jako bys hrál/a na klavír – skoro jen myšlenkou.', 'Po 20–40 sekundách udělej reality check (ucpaný nos).', 'Pokud dýcháš ucpaným nosem, jsi ve snu – zůstaň klidný/á. Pokud ne, opakuj nebo usni s MILD záměrem.'],
+    do: ['Používej, když jsi opravdu ospalý/á.', 'Pohyb jen naznač.', 'Kombinuj s krátkým WBTB.'],
+    dont: ['Nepohybuj prsty viditelně a rytmicky jako metronom.', 'Nedělej to večer – nefunguje to po usnutí.', 'Nezkoušej desítky minut – je to otázka chvilky.'],
+    tip: 'FILD je ideální, když tě probudí noční kotva nebo náhodné probuzení nad ránem.' },
+  { id: 'stabil', ic: '⚓', group: 'Ve snu', title: 'Stabilizace a prodloužení snu', time: '3 min',
+    intro: 'První lucidní sny často končí hned po uvědomění – nadšení tě vzbudí nebo sen začne blednout. Stabilizační techniky zapojí smysly a ukotví tě ve snu.',
+    steps: ['Zůstaň klidný/á. Řekni si: „Sním, mám čas.“', 'Promni si dlaně a soustřeď se na pocit tření.', 'Dotýkej se okolí – zdí, trávy, předmětů. Hmat je silná kotva.', 'Řekni nahlas: „Jasnost hned!“ nebo „Zvýšit jasnost!“', 'Pokud sen bledne, začni se točit kolem dokola – často to vytvoří novou, stabilní scénu.'],
+    do: ['Vnímej detaily – barvy, textury, zvuky.', 'Pravidelně opakuj, že sníš, ať neztratíš luciditu.', 'Měj připravený plán (z večerního rituálu).'],
+    dont: ['Nedívej se dlouho do jednoho bodu.', 'Nezačínej hned létat do vesmíru – nejprve se stabilizuj.', 'Nemysli na své tělo v posteli.'],
+    tip: 'Když se probudíš, nehýbej se a zkus hned znovu usnout se záměrem – můžeš skočit zpátky do stejného snu (DEILD).' },
+  { id: 'inside', ic: '✦', group: 'Ve snu', title: 'Co dělat v lucidním snu', time: '3 min',
+    intro: 'Lucidní sen je bezpečné hřiště i laboratoř. Můžeš létat, setkat se s postavou ze snu, trénovat dovednost, čelit strachu nebo se jen kochat. Plán předem výrazně zvyšuje šanci, že ho opravdu uskutečníš.',
+    steps: ['Stabilizuj sen (předchozí karta).', 'Připomeň si plán z večera.', 'Začni jednoduchým úkolem – přejdi skrz dveře, vyskoč, změň barvu předmětu.', 'Zkus se zeptat snové postavy: „Co pro mě znamenáš?“ Odpovědi bývají překvapivé.', 'Po probuzení vše zapiš a označ sen jako lucidní.'],
+    do: ['Očekávej úspěch – ve snu funguje to, co čekáš.', 'Měň scénu přes dveře nebo otočením zády.', 'Užívej si a buď laskavý/á k postavám.'],
+    dont: ['Nesnaž se ovládnout vše silou vůle.', 'Neboj se nočních můr – v lucidním snu se jim můžeš postavit a změnit je.', 'Nezapomeň ráno zapisovat.'],
+    tip: 'Pokud nejde létat, zkus předstírat, že padáš nahoru, nebo se odraz a představ si, že plaveš ve vzduchu.' },
+  { id: 'safety', ic: '🕊️', group: 'Ve snu', title: 'Spánková paralýza a bezpečí', time: '3 min',
+    intro: 'Spánková paralýza je přirozený stav, kdy se mysl probudí dřív než tělo. Může ji provázet tlak na hrudi, bzučení nebo pocit přítomnosti. Je nepříjemná, ale neškodná – a je to brána k WILD.',
+    steps: ['Uvědom si, co se děje: „Tělo ještě spí, je to bezpečné.“', 'Dýchej pomalu a klidně – dýchání je vždy pod tvou kontrolou.', 'Zkus pohnout malíčkem nebo zavrtět prsty u nohou – paralýza se rozpustí.', 'Nebo ji využij: představ si, že se vznášíš ven z těla do snu.'],
+    do: ['Zůstaň klidný/á, strach paralýzu prodlužuje.', 'Měj na paměti, že vše odezní během chvíle.', 'Dbej na spánek – při nevyspání je paralýza častější.'],
+    dont: ['Nebojuj s ní silou.', 'Nepoužívej techniky, pokud ti způsobují úzkost nebo zhoršují spánek.', 'Nezkoušej lucidní snění při vážných psychických obtížích bez konzultace s odborníkem.'],
+    tip: 'Pokud tě sny nebo paralýza dlouhodobě trápí, svěř se lékaři nebo terapeutovi. Lucidní snění má být radost, ne zátěž.' }
+];
+
+function renderAcademy() {
+  const v = $('#v-academy');
+  const read = S.academyRead.length;
+  const L = levelInfo();
+  const groups = [...new Set(ACADEMY.map(a => a.group))];
+  v.innerHTML = `
+    <div class="section panel">
+      <div class="levelcard">${moonSVG(L.pct, L.idx, 'a' + L.idx)}<div class="grow"><h3>${esc(L.name)}</h3><p class="muted small" style="margin:2px 0 8px">${L.next ? `${L.need - L.xp} XP do úrovně ${esc(L.next)}` : 'Nejvyšší úroveň dosažena'}</p><div class="progress"><div style="width:${Math.round(L.pct * 100)}%"></div></div></div></div>
+      <p class="muted small" style="margin:12px 0 0">Prostudováno ${read}/${ACADEMY.length} lekcí · každá lekce +15 XP</p>
+    </div>
+    <button class="tech section" id="acGuide"><span class="glyph">🧭</span><span class="grow"><h3>Jak používat aplikaci</h3><p>Ranní zápis, reality checky, WBTB, kotva a záloha – krok za krokem.</p></span></button>
+    ${groups.map(g => `<div class="section"><div class="section-head"><h3>${esc(g)}</h3></div>
+      ${ACADEMY.filter(a => a.group === g).map(a => `<button class="tech" data-ac="${a.id}"><span class="glyph ${S.academyRead.includes(a.id) ? 'done' : ''}">${S.academyRead.includes(a.id) ? '✓' : a.ic}</span><span class="grow"><h3>${esc(a.title)}</h3><p>${esc(a.intro.split('. ')[0])}.</p><span class="tag-level">${esc(a.time)} čtení</span></span></button>`).join('')}
+    </div>`).join('')}`;
+  $$('[data-ac]', v).forEach(b => b.onclick = () => openLesson(b.dataset.ac));
+  $('#acGuide').onclick = () => openGuide(false);
+}
+function openLesson(id) {
+  const a = ACADEMY.find(x => x.id === id); if (!a) return;
+  const isRead = S.academyRead.includes(id);
+  markOverlay();
+  openSheet(`<div class="sheet-head"><span class="glyph" style="font-size:1.8rem">${a.ic}</span><h2>${esc(a.title)}</h2></div>
+    <div class="prose"><p>${esc(a.intro)}</p></div>
+    <h3 style="margin-top:16px">Postup</h3>
+    <ol class="steps">${a.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+    <div class="dodont"><div class="do"><b>Dělej</b><ul>${a.do.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div><div class="dont"><b>Nedělej</b><ul>${a.dont.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div></div>
+    <div class="tipbox">💡 ${esc(a.tip)}</div>
+    <button class="btn ${isRead ? '' : 'gold'} big block" style="margin-top:18px" id="lsDone">${isRead ? '✓ Prostudováno' : 'Označit jako prostudované (+15 XP)'}</button>`, sh => {
+    $('#lsDone', sh).onclick = () => {
+      if (!S.academyRead.includes(id)) { S.academyRead.push(id); dataChanged(); toast('+15 XP · lekce prostudována'); vibrate(); }
+      closeSheet(); renderAcademy();
+    };
+  });
+}
+function moonSVG(pct, lvl, key) {
+  const idx = key || lvl;
+  return `<svg viewBox="0 0 80 80" aria-hidden="true"><defs><radialGradient id="lm${idx}" cx="40%" cy="35%"><stop offset="0" stop-color="#f3e6bd"/><stop offset="1" stop-color="#c9a85c"/></radialGradient><clipPath id="lc${idx}"><circle cx="40" cy="40" r="30"/></clipPath></defs>
+    <circle cx="40" cy="40" r="34" fill="none" stroke="#2a3373" stroke-width="2"/><circle cx="40" cy="40" r="30" fill="url(#lm${idx})"/>
+    <g clip-path="url(#lc${idx})"><circle cx="${40 + pct * 62}" cy="37" r="30" fill="#161d4a" opacity="0.94"/></g>
+    <text x="40" y="76" text-anchor="middle" font-size="9" fill="#9893b8">úroveň ${lvl + 1}</text></svg>`;
+}
+
+/* ---------- Statistiky ---------- */
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function prepCanvas(c, h) {
+  const dpr = window.devicePixelRatio || 1; const w = c.clientWidth || 320;
+  c.style.height = h + 'px'; c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function renderStats() {
+  const v = $('#v-stats');
+  const total = S.dreams.length, luc = S.dreams.filter(d => d.lucid).length;
+  const st = streaks(); const L = levelInfo();
+  const avgViv = total ? (S.dreams.reduce((a, d) => a + d.vivid, 0) / total).toFixed(1).replace('.', ',') : '–';
+  const signs = dreamSigns(8);
+  const trig = {}; S.dreams.filter(d => d.lucid && d.trigger).forEach(d => { trig[d.trigger] = (trig[d.trigger] || 0) + 1; });
+  const trigList = Object.entries(trig).sort((a, b) => b[1] - a[1]);
+  const maxSign = signs.length ? signs[0].count : 1;
+  v.innerHTML = `
+    <div class="section panel">
+      <div class="levelcard">${moonSVG(L.pct, L.idx, 's' + L.idx)}<div class="grow"><h3>${esc(L.name)}</h3><p class="muted small" style="margin:2px 0 8px">${L.xp} XP${L.next ? ` · další: ${esc(L.next)} (${L.need} XP)` : ''}</p><div class="progress"><div style="width:${Math.round(L.pct * 100)}%"></div></div></div></div>
+    </div>
+    <div class="section kpis">
+      <div class="kpi"><b>${total}</b><span>zapsaných snů</span></div>
+      <div class="kpi"><b style="color:var(--gold)">${luc}</b><span>lucidních (${total ? Math.round(luc / total * 100) : 0} %)</span></div>
+      <div class="kpi"><b>🔥 ${st.cur}</b><span>aktuální série · nejdelší ${st.best}</span></div>
+      <div class="kpi"><b>${rcToday()}<span class="small muted"> / ${S.rcLog.length}</span></b><span>reality checků dnes / celkem</span></div>
+      <div class="kpi"><b>${avgViv}</b><span>průměrná živost</span></div>
+      <div class="kpi"><b>${ritualCount()}</b><span>dokončených rituálů</span></div>
+    </div>
+    ${total ? `
+    <div class="section panel"><h3>Lucidní vs. běžné sny</h3><canvas id="cDonut"></canvas></div>
+    <div class="section panel"><h3>Živost snů v čase</h3><p class="muted small" style="margin:2px 0 8px">Posledních 30 záznamů · zlaté body = lucidní</p><canvas id="cLine"></canvas></div>
+    <div class="section panel"><h3>Posledních 14 nocí</h3><canvas id="cBars"></canvas></div>` : `<div class="section panel empty"><p>Grafy se objeví po prvních zápisech snů.</p></div>`}
+    ${signs.length ? `<div class="section panel"><h3>Nejčastější snová znamení</h3><div class="bars" style="margin-top:8px">${signs.map(s => `<div class="bar"><div class="bar-top"><span>${s.tag ? '#' : ''}${esc(s.word)}</span><span class="muted">${s.count}× · ${s.pct} %${s.lucid ? ' · ✦' + s.lucid : ''}</span></div><div class="bar-track"><div class="bar-fill" style="width:${s.count / maxSign * 100}%"></div></div></div>`).join('')}</div></div>` : ''}
+    ${trigList.length ? `<div class="section panel"><h3>Co tě nejčastěji zlucidní</h3><div class="bars" style="margin-top:8px">${trigList.map(([k, n]) => `<div class="bar"><div class="bar-top"><span>${esc(k)}</span><span class="muted">${n}×</span></div><div class="bar-track"><div class="bar-fill" style="width:${n / trigList[0][1] * 100}%;background:linear-gradient(90deg,#a9873e,var(--gold))"></div></div></div>`).join('')}</div></div>` : ''}
+    <div class="section"><div class="section-head"><h3>Odznaky</h3><span>${Object.keys(S.badges).length}/${BADGES.length}</span></div>
+      <div class="badges">${BADGES.map(b => `<div class="badge ${S.badges[b.id] ? 'got' : ''}"><span class="ic">${b.ic}</span><b>${esc(b.name)}</b>${esc(b.desc)}</div>`).join('')}</div></div>
+    <div class="section"><button class="btn block" id="stSettings">Nastavení, záloha a export dat</button></div>`;
+  $('#stSettings').onclick = openSettings;
+  if (total) requestAnimationFrame(drawCharts);
+}
+function drawCharts() {
+  const gold = cssVar('--gold'), violet = cssVar('--violet'), azure = cssVar('--azure'), dim = cssVar('--dim'), line = cssVar('--line'), text = cssVar('--text');
+  const total = S.dreams.length, luc = S.dreams.filter(d => d.lucid).length;
+  const cd = $('#cDonut');
+  if (cd) {
+    const { ctx, w, h } = prepCanvas(cd, 190);
+    const cx = Math.min(w / 2, 110), cy = h / 2, r = 72;
+    ctx.lineWidth = 22; ctx.lineCap = 'butt';
+    ctx.strokeStyle = violet; ctx.globalAlpha = .55; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
+    if (luc) { ctx.strokeStyle = gold; ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * luc / total); ctx.stroke(); }
+    ctx.fillStyle = text; ctx.font = '500 30px ' + cssVar('--serif'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(Math.round(luc / total * 100) + ' %', cx, cy - 6);
+    ctx.fillStyle = dim; ctx.font = '12px ' + cssVar('--sans'); ctx.fillText('lucidita', cx, cy + 20);
+    if (w > 300) {
+      ctx.textAlign = 'left'; const lx = cx + r + 40;
+      ctx.fillStyle = gold; ctx.fillRect(lx, cy - 26, 14, 14); ctx.fillStyle = text; ctx.font = '14px ' + cssVar('--sans'); ctx.fillText(`Lucidní: ${luc}`, lx + 22, cy - 19);
+      ctx.fillStyle = violet; ctx.fillRect(lx, cy + 8, 14, 14); ctx.fillStyle = text; ctx.fillText(`Běžné: ${total - luc}`, lx + 22, cy + 15);
+    }
+  }
+  const cl = $('#cLine');
+  if (cl) {
+    const { ctx, w, h } = prepCanvas(cl, 170);
+    const data = S.dreams.slice().sort((a, b) => a.date.localeCompare(b.date) || a.created - b.created).slice(-30);
+    const pl = 24, pr = 10, pt = 10, pb = 22;
+    const X = i => pl + (data.length === 1 ? (w - pl - pr) / 2 : i * (w - pl - pr) / (data.length - 1));
+    const Y = vv => pt + (5 - vv) * (h - pt - pb) / 4;
+    ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.fillStyle = dim; ctx.font = '11px ' + cssVar('--sans'); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (let vv = 1; vv <= 5; vv++) { ctx.beginPath(); ctx.moveTo(pl, Y(vv)); ctx.lineTo(w - pr, Y(vv)); ctx.stroke(); ctx.fillText(vv, pl - 8, Y(vv)); }
+    const grad = ctx.createLinearGradient(0, pt, 0, h - pb); grad.addColorStop(0, 'rgba(98,182,204,.35)'); grad.addColorStop(1, 'rgba(98,182,204,0)');
+    ctx.beginPath(); data.forEach((d, i) => { i ? ctx.lineTo(X(i), Y(d.vivid)) : ctx.moveTo(X(i), Y(d.vivid)); });
+    ctx.strokeStyle = azure; ctx.lineWidth = 2.2; ctx.lineJoin = 'round'; ctx.stroke();
+    if (data.length > 1) { ctx.lineTo(X(data.length - 1), h - pb); ctx.lineTo(X(0), h - pb); ctx.closePath(); ctx.fillStyle = grad; ctx.fill(); }
+    data.forEach((d, i) => { ctx.beginPath(); ctx.arc(X(i), Y(d.vivid), d.lucid ? 5 : 3, 0, Math.PI * 2); ctx.fillStyle = d.lucid ? gold : azure; ctx.fill(); });
+    ctx.fillStyle = dim; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    if (data.length) { ctx.fillText(fmtDate(data[0].date).replace(/ \d{4}$/, ''), pl, h - 4); ctx.textAlign = 'right'; ctx.fillText(fmtDate(data[data.length - 1].date).replace(/ \d{4}$/, ''), w - pr, h - 4); }
+  }
+  const cb = $('#cBars');
+  if (cb) {
+    const { ctx, w, h } = prepCanvas(cb, 160);
+    const days = []; for (let i = 13; i >= 0; i--) days.push(dayKey(addDays(new Date(), -i)));
+    const counts = days.map(k => { const ds = S.dreams.filter(d => d.date === k); return { n: ds.length, l: ds.filter(d => d.lucid).length, k }; });
+    const max = Math.max(2, ...counts.map(c => c.n));
+    const pb = 22, pt = 8; const bw = (w - 8) / 14;
+    counts.forEach((c, i) => {
+      const x = 4 + i * bw + bw * 0.18, bwi = bw * 0.64;
+      const hh = (h - pb - pt) * c.n / max, hl = (h - pb - pt) * c.l / max;
+      ctx.fillStyle = 'rgba(138,123,224,.18)'; ctx.fillRect(x, pt, bwi, h - pb - pt);
+      ctx.fillStyle = violet; ctx.fillRect(x, h - pb - hh, bwi, hh);
+      if (hl) { ctx.fillStyle = gold; ctx.fillRect(x, h - pb - hl, bwi, hl); }
+      ctx.fillStyle = dim; ctx.font = '10px ' + cssVar('--sans'); ctx.textAlign = 'center';
+      ctx.fillText(parseDay(c.k).getDate(), x + bwi / 2, h - 6);
+    });
+  }
+}
+
+/* ---------- Nastavení a data ---------- */
+function openSettings() {
+  const s = S.settings; const backups = getBackups();
+  markOverlay();
+  openSheet(`<div class="sheet-head"><h2>Nastavení a data</h2></div>
+    <label class="switch"><span>Automaticky uhladit text při uložení</span><input type="checkbox" id="seClean" ${s.autoClean ? 'checked' : ''}><span class="track"></span></label>
+    <label class="switch"><span>Spisovné tvary<br><span class="muted small">taky → také, byls → byl jsi, sme → jsme</span></span><input type="checkbox" id="seFormal" ${s.formal ? 'checked' : ''}><span class="track"></span></label>
+    <label class="switch"><span>Vibrace při klepnutí</span><input type="checkbox" id="seVib" ${s.vibrate ? 'checked' : ''}><span class="track"></span></label>
+    <label class="field" style="margin-top:8px"><span>Extra ztmavení displeje (noční ergonomie)</span><input type="range" id="seDim" min="0" max="0.7" step="0.05" value="${s.dim}"></label>
+
+    <h3 style="margin-top:22px">Záloha dat</h3>
+    <p class="muted small">Vše je uložené jen v tomto zařízení. Aplikace si sama dělá denní zálohy (posledních 7) a zálohu před každým importem či mazáním. Pro jistotu občas exportuj soubor.</p>
+    <button class="btn primary big block" id="seExport">Exportovat vše (.json)</button>
+    <div class="row" style="margin-top:10px"><button class="btn grow" id="seImport">Importovat soubor</button><button class="btn grow" id="sePaste">Vložit text zálohy</button></div>
+    ${backups.length ? `<h3 style="margin-top:22px">Automatické zálohy</h3><ul class="list-plain">${backups.map((b, i) => `<li class="row"><span class="grow small">${esc(new Date(b.t).toLocaleString('cs-CZ'))}<br><span class="muted">${esc(b.reason)} · ${b.dreams} ${plural(b.dreams, 'sen', 'sny', 'snů')}</span></span><button class="btn sm" data-restore="${i}">Obnovit</button></li>`).join('')}</ul>` : ''}
+    <button class="btn sm block" id="seBackupNow" style="margin-top:10px">Vytvořit zálohu teď</button>
+
+    <h3 style="margin-top:22px">Nebezpečná zóna</h3>
+    <button class="btn danger block" id="seWipe">Smazat všechna data</button>
+    <p class="muted small center" style="margin-top:18px">Lucidum funguje 100% offline. Žádná data neopouštějí zařízení.</p>`, sh => {
+    $('#seClean', sh).onchange = e => { s.autoClean = e.target.checked; save(); };
+    $('#seFormal', sh).onchange = e => { s.formal = e.target.checked; save(); };
+    $('#seVib', sh).onchange = e => { s.vibrate = e.target.checked; save(); vibrate(); };
+    $('#seDim', sh).oninput = e => { s.dim = +e.target.value; applyDim(); save(); };
+    $('#seExport', sh).onclick = exportData;
+    $('#seImport', sh).onclick = () => $('#fileImport').click();
+    $('#sePaste', sh).onclick = () => openSheet(`<div class="sheet-head"><h2>Vložit zálohu</h2></div><textarea id="pasteTa" rows="8" placeholder="Sem vlož obsah .json zálohy"></textarea><button class="btn primary big block" style="margin-top:12px" id="pasteGo">Načíst</button>`, s2 => {
+      $('#pasteGo', s2).onclick = () => handleImportText($('#pasteTa', s2).value);
+    });
+    $$('[data-restore]', sh).forEach(b => b.onclick = () => {
+      const bk = getBackups()[+b.dataset.restore]; if (!bk) return;
+      confirmSheet('Obnovit zálohu?', `Data se vrátí ke stavu z ${esc(new Date(bk.t).toLocaleString('cs-CZ'))}. Aktuální stav se předtím uloží jako záloha.`, 'Obnovit', () => {
+        makeBackup('před obnovením'); S = mergeData(bk.data); dataChanged(); applyDim(); rerender(); toast('Záloha obnovena');
+      });
+    });
+    $('#seBackupNow', sh).onclick = () => { if (makeBackup('ruční')) { toast('Záloha vytvořena'); openSettings(); } else toast('Zálohu se nepodařilo uložit – málo místa'); };
+    $('#seWipe', sh).onclick = () => confirmSheet('Smazat všechna data?', 'Smažou se všechny sny, statistiky i nastavení. Automatické zálohy zůstanou, takže to půjde vrátit.', 'Smazat vše', () => {
+      makeBackup('před smazáním všeho'); S = defaults(); clearDraft(); dataChanged(); applyDim(); rerender(); toast('Data smazána');
+    }, true);
+  });
+}
+function exportData() {
+  const payload = { app: 'lucidum', format: 1, exported: new Date().toISOString(), data: S };
+  saveFile(`lucidum-zaloha-${dayKey()}.json`, JSON.stringify(payload, null, 2), 'application/json');
+}
+function handleImportText(txt) {
+  let obj;
+  try { obj = JSON.parse(String(txt || '').trim().replace(/^\uFEFF/, '')); } catch (e) { toast('Soubor není platný JSON'); return; }
+  const data = obj && obj.data && Array.isArray(obj.data.dreams) ? obj.data : obj;
+  if (!data || !Array.isArray(data.dreams)) { toast('V souboru nejsou data Lucidum'); return; }
+  const incoming = mergeData(data);
+  openSheet(`<div class="sheet-head"><h2>Import zálohy</h2></div>
+    <p class="muted">Soubor obsahuje ${incoming.dreams.length} ${plural(incoming.dreams.length, 'sen', 'sny', 'snů')} a ${incoming.rcLog.length} reality checků.</p>
+    <button class="btn primary big block" id="imMerge">Sloučit s aktuálními daty</button>
+    <button class="btn danger block" style="margin-top:10px" id="imReplace">Nahradit vše</button>
+    <p class="muted small" style="margin-top:12px">Před importem se automaticky vytvoří záloha současného stavu.</p>`, sh => {
+    $('#imMerge', sh).onclick = () => {
+      makeBackup('před importem');
+      const byId = new Map(S.dreams.map(d => [d.id, d]));
+      incoming.dreams.forEach(d => { const ex = byId.get(d.id); if (!ex || d.updated > ex.updated) byId.set(d.id, d); });
+      S.dreams = [...byId.values()];
+      S.rcLog = [...new Set(S.rcLog.concat(incoming.rcLog))].sort((a, b) => a - b);
+      S.academyRead = [...new Set(S.academyRead.concat(incoming.academyRead))];
+      S.customTags = [...new Set(S.customTags.concat(incoming.customTags))];
+      S.rituals = Object.assign({}, incoming.rituals, S.rituals);
+      S.badges = Object.assign({}, incoming.badges, S.badges);
+      ['text', 'clock', 'odd', 'played'].forEach(k => { S.games[k] = Math.max(S.games[k] || 0, incoming.games[k] || 0); });
+      ['wbtb', 'breath', 'anchors'].forEach(k => { S.counters[k] = Math.max(S.counters[k] || 0, incoming.counters[k] || 0); });
+      dataChanged(); closeSheet(); rerender(); toast('Data sloučena ✓');
+    };
+    $('#imReplace', sh).onclick = () => { makeBackup('před importem'); S = incoming; dataChanged(); applyDim(); closeSheet(); rerender(); toast('Data nahrazena ✓'); };
+  });
+}
+function applyDim() { $('#dimLayer').style.opacity = String(S.settings.dim || 0); }
+
+
+/* ---------- Návod k aplikaci ---------- */
+const GUIDE = [
+  { ic: '🧭', title: 'Jak to celé funguje', lead: 'Aplikace je postavená na denní rutině. Každá záložka dole odpovídá jedné části dne.', list: [
+    '<b>Deník</b> – ráno zapisuješ sny.',
+    '<b>Realita</b> – přes den trénuješ reality checky.',
+    '<b>Noc</b> – večerní příprava a noční nástroje.',
+    '<b>Akademie</b> – návody k technikám.',
+    '<b>Pokrok</b> – grafy, úrovně, odznaky a záloha dat.',
+    'Realistické očekávání: první týden hlavně zapisuj sny a dělej reality checky. První lucidní sen přichází obvykle během 2–6 týdnů pravidelného deníku.'] },
+  { ic: '🌅', title: 'Ráno – zápis snu', lead: 'Sny mizí během pár minut, proto zapisuj hned.', ordered: true, list: [
+    'Po probuzení se nehýbej a vybav si poslední obraz snu. Pak jdi v ději pozpátku.',
+    'V záložce <b>Deník</b> klepni na <b>Zapsat sen</b>.',
+    'Piš rychle, klidně bez interpunkce, nebo diktuj přes mikrofon na klávesnici. Při uložení se text sám uhladí. Tlačítkem <b>✨ Uhladit</b> to uvidíš předem a jde to i vrátit.',
+    'Když se ti nechce psát, naklikej aspoň štítky (místa, lidé, motivy) a emoce.',
+    'Nastav živost 1–5. Pokud jsi věděl/a, že sníš, zapni <b>Byl to lucidní sen?</b> a vyber, co tě zlucidnilo.',
+    'Název psát nemusíš, vytvoří se sám. Rozepsaný sen se průběžně ukládá jako koncept.'] },
+  { ic: '🔮', title: 'Snová znamení', lead: 'Tvoje největší šance na lucidní sen.', list: [
+    'Po pár zápisech se v Deníku objeví <b>Tvoje snová znamení</b> – motivy, které se ve snech opakují.',
+    'Klepnutím na znamení vyfiltruješ sny, kde se objevilo.',
+    'Vyber si jedno znamení na týden. Kdykoli ho uvidíš nebo si na něj vzpomeneš, udělej reality check.',
+    'Znamení se automaticky vkládají i do kalendářových připomínek a do večerního záměru.'] },
+  { ic: '✋', title: 'Přes den – reality checky', lead: 'Cílem je zvyk, který se přenese do snu.', list: [
+    'Dělej <b>10–15 testů denně</b>. Tlačítko <b>Provést reality check teď</b> tě provede dvěma testy a otázkami.',
+    'Neber to mechanicky. Opravdu se zastav, prozkoumej okolí a připusť, že můžeš snít.',
+    'Nejspolehlivější je ucpat si nos a zkusit dýchat, a k tomu se podívat na ruce.',
+    'Kdykoli tě něco překvapí nebo zarazí, udělej test hned.',
+    'Hry <b>Proměnlivý text</b>, <b>Snové hodiny</b> a <b>Najdi anomálii</b> jsou krátký trénink pozornosti, třeba cestou v MHD.'] },
+  { ic: '📅', title: 'Připomínky v kalendáři', lead: 'Telefon ti bude připomínat sám, i bez internetu.', ordered: true, list: [
+    'V záložce <b>Realita</b> sjeď dolů k <b>Připomínkám v kalendáři</b>.',
+    'Nastav čas od–do, počet připomínek denně a na kolik dní dopředu.',
+    'Klepni na <b>Vytvořit a stáhnout .ics</b> a v nabídce vyber svůj Kalendář.',
+    'Potvrď import. Časy jsou pokaždé náhodné, aby si na ně mozek nezvykl.',
+    'Opakuj jednou za 2–4 týdny, ať se do připomínek dostanou i nová snová znamení.'] },
+  { ic: '🕯️', title: 'Večer – příprava', ordered: true, list: [
+    'V záložce <b>Noc</b> projdi <b>Večerní rituál</b> a odškrtej body.',
+    'Napiš <b>záměr</b>, např. „Až uvidím babičku, poznám, že sním.“',
+    'Napiš <b>plán</b>, co uděláš, až zlucidníš. Konkrétní plán výrazně zvyšuje šanci na úspěch.',
+    'Pusť si <b>dechové cvičení</b>. Na zklidnění je nejlepší 4-7-8.',
+    'Před usnutím si v duchu opakuj afirmaci z rituálu.'] },
+  { ic: '⏰', title: 'V noci – WBTB', lead: 'Nejsilnější technika. Používej 2–3× týdně, ideálně o víkendu.', ordered: true, list: [
+    'Před spaním v záložce <b>Noc</b> nastav WBTB budík na 4,5 nebo 6 hodin a klepni na <b>Spustit</b>.',
+    '<b>Nech aplikaci otevřenou</b> a telefon na nabíječce. Měsíček nahoře displej ztmaví, dvojklepem se vrátíš.',
+    'Pro jistotu přidej <b>Pojistku v kalendáři</b> – stejný budík i v kalendáři.',
+    'Po zazvonění zvuk sám po chvíli utichne. Vstaň na 20–30 minut, zapiš sen a spusť <b>odpočet pauzy</b>.',
+    'Vrať se do postele a opakuj si: „Až budu příště snít, uvědomím si, že sním.“ To je technika MILD (viz Akademie).'] },
+  { ic: '🔔', title: 'Audio totem a noční kotva', list: [
+    '<b>Audio totem</b>: vyber si jeden zvuk. Hraje při každém reality checku, takže si ho mozek spojí s otázkou „Sním?“.',
+    '<b>Noční kotva</b> přehrává stejný zvuk velmi potichu během noci. Ve snu ho můžeš zaslechnout a uvědomit si, že sníš.',
+    'Nejdřív kotvu vyzkoušej tlačítkem <b>Vyzkoušet</b> a nastav hlasitost tak, aby tě nebudila.',
+    'Nejlépe funguje po WBTB: začátek za 20–30 minut, interval 10–15 minut.'] },
+  { ic: '📚', title: 'Akademie a pokrok', list: [
+    'Začni lekcemi <b>Snový deník</b>, <b>Reality checky</b> a <b>MILD</b>. Ostatní techniky přidávej postupně.',
+    'Za zápisy, lucidní sny, lekce, rituály i reality checky získáváš body a postupuješ úrovněmi až k Mistrovi snění.',
+    'V záložce <b>Pokrok</b> uvidíš grafy, sérii nocí, odznaky a co tě nejčastěji zlucidní.'] },
+  { ic: '💾', title: 'Záloha dat', lead: 'Všechna data jsou jen v tomto telefonu.', list: [
+    'Aplikace si sama dělá denní zálohy a zálohu před každým mazáním či importem.',
+    'Jednou za čas otevři ozubené kolo nahoře a dej <b>Exportovat vše</b>. Soubor ulož na Disk nebo pošli e-mailem sobě.',
+    'Při výměně telefonu soubor jen naimportuješ.',
+    'Tento návod najdeš kdykoli pod otazníkem v horní liště.'] }
+];
+function openGuide(first) {
+  markOverlay();
+  openSheet(`<div class="sheet-head"><h2>${first ? 'Vítej v aplikaci Lucidum' : 'Jak používat Lucidum'}</h2><button class="icon-btn" id="gdClose" aria-label="Zavřít"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    ${first ? '<p class="muted" style="margin-top:0">Krátký návod, jak z aplikace dostat maximum. Klepni na téma pro rozbalení.</p>' : ''}
+    ${GUIDE.map((s, i) => `<div class="guide-sec ${i === 0 ? 'open' : ''}"><button data-g="${i}"><span style="font-size:1.4rem">${s.ic}</span><h3>${esc(s.title)}</h3><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="gbody">${s.lead ? `<p class="guide-lead">${esc(s.lead)}</p>` : ''}${s.ordered ? `<ol class="steps">${s.list.map(x => `<li>${x}</li>`).join('')}</ol>` : `<ul class="guide-list">${s.list.map(x => `<li>${x}</li>`).join('')}</ul>`}</div></div>`).join('')}
+    <button class="btn primary big block" id="gdOk" style="margin-top:8px">${first ? 'Začít' : 'Rozumím'}</button>`, sh => {
+    $$('[data-g]', sh).forEach(b => b.onclick = () => b.parentElement.classList.toggle('open'));
+    $('#gdClose', sh).onclick = closeSheet;
+    $('#gdOk', sh).onclick = closeSheet;
+  });
+}
+
+/* ---------- Navigace ---------- */
+const TABS = ['journal', 'reality', 'night', 'academy', 'stats'];
+let activeTab = 'journal';
+const RENDER = { journal: () => renderJournal(), reality: () => renderReality(), night: () => renderNight(), academy: () => renderAcademy(), stats: () => renderStats() };
+function switchTab(name) {
+  if (!TABS.includes(name)) return;
+  const fromIdx = TABS.indexOf(activeTab), toIdx = TABS.indexOf(name);
+  activeTab = name;
+  $$('#nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  $$('.view').forEach(v => { v.classList.remove('active', 'from-left'); });
+  const view = $('#v-' + name);
+  if (toIdx < fromIdx) view.classList.add('from-left');
+  RENDER[name]();
+  view.classList.add('active');
+  $('#main').scrollTop = 0;
+}
+function rerender() { RENDER[activeTab](); updateHeader(); }
+
+/* ---------- Hvězdné pozadí ---------- */
+function drawStars() {
+  const c = $('#stars'); const dpr = window.devicePixelRatio || 1;
+  const w = window.innerWidth, h = window.innerHeight;
+  c.width = w * dpr; c.height = h * dpr; c.style.width = w + 'px'; c.style.height = h + 'px';
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const n = Math.round(w * h / 5200);
+  for (let i = 0; i < n; i++) {
+    const x = rnd() * w, y = rnd() * h * 0.85, r = rnd() * 1.1 + 0.2, a = rnd() * 0.6 + 0.15;
+    ctx.fillStyle = rnd() > 0.85 ? `rgba(201,168,92,${a})` : `rgba(200,195,240,${a})`;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+/* ---------- Start ---------- */
+function init() {
+  load(); loadRT(); dailyBackup(); applyDim(); updateHeader(); drawStars();
+  $$('#nav button').forEach(b => b.onclick = () => { vibrate(6); switchTab(b.dataset.tab); });
+  $('#btnSettings').onclick = openSettings;
+  $('#btnDim').onclick = openNightScreen;
+  $('#btnHelp').onclick = () => openGuide(false);
+  $('#sheetWrap').addEventListener('click', e => { if (e.target.id === 'sheetWrap') closeSheet(); });
+  $('#fileImport').onchange = e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const r = new FileReader(); r.onload = () => handleImportText(r.result); r.onerror = () => toast('Soubor nelze přečíst'); r.readAsText(f, 'utf-8');
+    e.target.value = '';
+  };
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { drawStars(); if (activeTab === 'stats') drawCharts(); }, 200); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { save(); if (ed) setDraft(ed); } else { nightTick(); if (activeTab === 'reality' || activeTab === 'stats') rerender(); } });
+  window.addEventListener('pagehide', () => { save(); if (ed) setDraft(ed); });
+  // obnovení běžících nočních nástrojů po znovuotevření aplikace
+  if (RT.wbtbTarget || RT.anchor || RT.pauseTarget) {
+    requestWake();
+    const resume = () => { AudioEngine.init(); AudioEngine.keepAlive(true); document.removeEventListener('pointerdown', resume); };
+    document.addEventListener('pointerdown', resume);
+  }
+  switchTab('journal');
+  checkBadges();
+  setInterval(nightTick, 1000);
+  if (!S.seenGuide) { S.seenGuide = true; save(); setTimeout(() => openGuide(true), 600); }
+}
+init();
+</script>
+</body>
+</html>
