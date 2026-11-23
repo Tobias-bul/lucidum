@@ -336,7 +336,7 @@ function defaults() {
       wbtbMinutes: 270, wbtbFade: 45, wbtbVol: 0.55,
       anchorDelay: 20, anchorEvery: 12, anchorReps: 6, anchorVol: 0.18,
       breathPattern: '478', breathMinutes: 4, breathSound: true,
-      icsFrom: '09:00', icsTo: '22:00', icsCount: 6, icsDays: 14, icsSigns: true, icsAlarm: true
+      icsFrom: '09:00', icsTo: '22:00', icsCount: 6, icsDays: 14, icsSigns: true, icsAlarm: true, rcNotif: false, rcNotifDays: 10
     }
   };
 }
@@ -1014,18 +1014,25 @@ function renderReality() {
     </div>
 
     <div class="section">
-      <div class="section-head"><h3>Připomínky v kalendáři</h3></div>
+      <div class="section-head"><h3>${LN.ok() ? 'Připomínky v telefonu' : 'Připomínky v kalendáři'}</h3></div>
       <div class="panel stack">
-        <p class="muted small" style="margin-top:0">Vygeneruj soubor .ics s náhodnými časy reality checků. Importuješ ho jedním klepnutím do kalendáře a telefon ti bude připomínat i bez internetu. Náhodnost je důležitá – mozek si na pravidelný čas zvykne.</p>
+        ${LN.ok() ? `<p class="muted small" style="margin-top:0">Telefon ti v náhodných časech pošle oznámení s reality checkem – i se zhasnutým displejem a bez internetu. Klepnutím na oznámení se otevře řízený test. Náhodnost je důležitá, mozek si na pravidelný čas zvykne.</p>
+          <label class="switch"><span><b>Zapnout připomínky</b><br><span class="muted small" id="rcPlanInfo">${S.settings.rcNotif && S.rcPlan ? `Naplánováno ${S.rcPlan.count} připomínek do ${new Date(S.rcPlan.until).toLocaleDateString('cs-CZ')}` : 'Vypnuto'}</span></span><input type="checkbox" id="rcOn" ${S.settings.rcNotif ? 'checked' : ''}><span class="track"></span></label>`
+        : `<p class="muted small" style="margin-top:0">Vygeneruj soubor .ics s náhodnými časy reality checků. Importuješ ho do kalendáře a telefon ti bude připomínat i bez internetu.</p>`}
         <div class="row"><label class="field grow"><span>Od</span><input type="time" id="icsFrom" value="${esc(s.icsFrom)}"></label><label class="field grow"><span>Do</span><input type="time" id="icsTo" value="${esc(s.icsTo)}"></label></div>
         <label class="field"><span>Připomínek denně: <b id="icsCountL">${s.icsCount}</b></span><input type="range" id="icsCount" min="2" max="20" value="${s.icsCount}"></label>
-        <label class="field"><span>Na kolik dní dopředu</span>
-          <div class="seg" id="icsDays">${[7, 14, 30].map(d => `<button data-d="${d}" class="${s.icsDays === d ? 'on' : ''}">${d} dní</button>`).join('')}</div></label>
-        <label class="field"><span>Začít dnem</span><input type="date" id="icsStart" value="${dayKey(addDays(new Date(), 1))}"></label>
         <label class="switch"><span>Vkládat moje snová znamení<br><span class="muted small" id="icsSignInfo"></span></span><input type="checkbox" id="icsSigns" ${s.icsSigns ? 'checked' : ''}><span class="track"></span></label>
-        <label class="switch"><span>Upozornění (zvuk / notifikace kalendáře)</span><input type="checkbox" id="icsAlarm" ${s.icsAlarm ? 'checked' : ''}><span class="track"></span></label>
-        <p class="small muted">Ukázka prvního dne: <span class="timepreview" id="icsPreview"></span></p>
-        <button class="btn primary big block" id="icsGo">Vytvořit a stáhnout .ics</button>
+        <p class="small muted" style="margin:0">Ukázka jednoho dne: <span class="timepreview" id="icsPreview"></span></p>
+        ${LN.ok() ? `<div class="row"><button class="btn grow" id="rcTest">Vyzkoušet (za 5 s)</button><button class="btn primary grow" id="rcPlanBtn">Uložit a naplánovat</button></div>
+          <p class="muted small" style="margin:0">Připomínky se plánují 10 dní dopředu a obnovují se samy při každém otevření aplikace.</p>
+          <button class="btn ghost sm" id="icsToggle">Alternativa: export do kalendáře (.ics)</button>` : ''}
+        <div id="icsBox" class="stack ${LN.ok() ? 'hidden' : ''}">
+          <label class="field"><span>Na kolik dní dopředu</span>
+            <div class="seg" id="icsDays">${[7, 14, 30].map(d => `<button data-d="${d}" class="${s.icsDays === d ? 'on' : ''}">${d} dní</button>`).join('')}</div></label>
+          <label class="field"><span>Začít dnem</span><input type="date" id="icsStart" value="${dayKey(addDays(new Date(), 1))}"></label>
+          <label class="switch"><span>Upozornění kalendáře</span><input type="checkbox" id="icsAlarm" ${s.icsAlarm ? 'checked' : ''}><span class="track"></span></label>
+          <button class="btn ${LN.ok() ? '' : 'primary big'} block" id="icsGo">Vytvořit a stáhnout .ics</button>
+        </div>
       </div>
     </div>`;
   $('#rcNow').onclick = guidedRC;
@@ -1043,6 +1050,21 @@ function renderReality() {
     $('#icsPreview').textContent = times.join(', ');
   };
   ['icsFrom', 'icsTo', 'icsCount', 'icsSigns', 'icsAlarm'].forEach(id => { $('#' + id).oninput = upd; $('#' + id).onchange = upd; });
+  if (LN.ok()) {
+    const replan = async () => { upd(); const n = await planRCNotifications(false); const inf = $('#rcPlanInfo'); if (inf) inf.textContent = s.rcNotif && n ? `Naplánováno ${n} připomínek do ${new Date(S.rcPlan.until).toLocaleDateString('cs-CZ')}` : 'Vypnuto'; };
+    $('#rcOn').onchange = async e => {
+      if (e.target.checked) { const ok = await LN.perm(); if (!ok) { e.target.checked = false; toast('Bez povolení oznámení to nepůjde. Povol je v Nastavení telefonu → Aplikace → Lucidum.', 4500); return; } }
+      s.rcNotif = e.target.checked; save(); replan();
+    };
+    $('#rcPlanBtn').onclick = async () => { if (!s.rcNotif) { const ok = await LN.perm(); if (!ok) { toast('Nejdřív povol oznámení.'); return; } s.rcNotif = true; $('#rcOn').checked = true; save(); } replan(); };
+    $('#rcTest').onclick = async () => {
+      if (!(await LN.perm())) { toast('Nejdřív povol oznámení.'); return; }
+      const t = pick(RC_TECHNIQUES);
+      try { await LN.schedule([Object.assign({ id: 999, title: '🌙 Sníš? Reality check', body: `${t.name}: ${t.how}`, channelId: 'lucidum_rc', schedule: { at: new Date(Date.now() + 5000).toISOString(), allowWhileIdle: true }, isExactNotification: false, extra: { type: 'rc' } }, NOTIF_BASE)]); toast('Za 5 sekund přijde zkušební oznámení'); }
+      catch (e) { toast('Oznámení se nepodařilo naplánovat'); }
+    };
+    $('#icsToggle').onclick = () => $('#icsBox').classList.toggle('hidden');
+  }
   $$('#icsDays button').forEach(b => b.onclick = () => { s.icsDays = +b.dataset.d; $$('#icsDays button').forEach(x => x.classList.toggle('on', x === b)); save(); });
   upd();
   $('#icsGo').onclick = () => {
@@ -1279,6 +1301,77 @@ function buildRealityICS(start, days, from, to, count, useSigns, alarm) {
   return buildICS(events, 'Lucidum – reality checky');
 }
 
+/* ---------- Systémová oznámení (Capacitor LocalNotifications) ---------- */
+const LN = {
+  ready: false,
+  ok() { return hasNative('LocalNotifications'); },
+  call(m, o) { return window.Capacitor.nativePromise('LocalNotifications', m, o || {}); },
+  async setup() {
+    if (!this.ok() || this.ready) return;
+    this.ready = true;
+    try {
+      await this.call('createChannel', { id: 'lucidum_wbtb', name: 'WBTB budík', description: 'Jemné probuzení uprostřed noci', importance: 5, sound: 'lucidum_bell.wav', vibration: true, visibility: 1 });
+      await this.call('createChannel', { id: 'lucidum_rc', name: 'Reality checky', description: 'Připomínky reality checků během dne', importance: 4, sound: 'lucidum_chime.wav', vibration: true, visibility: 1 });
+    } catch (e) { /* kanály nejsou kritické */ }
+    try {
+      window.Capacitor.nativeCallback('LocalNotifications', 'addListener', { eventName: 'localNotificationActionPerformed' }, data => {
+        const n = data && data.notification; const type = n && n.extra && n.extra.type;
+        if (type === 'rc') { switchTab('reality'); setTimeout(guidedRC, 350); }
+        else if (type === 'wbtb' || type === 'pause') { switchTab('night'); nightTick(); }
+      });
+    } catch (e) { /* bez posluchače */ }
+  },
+  async perm() {
+    try {
+      let r = await this.call('checkPermissions');
+      if (r.display !== 'granted') r = await this.call('requestPermissions');
+      return r.display === 'granted';
+    } catch (e) { return false; }
+  },
+  async schedule(list) { if (!list.length) return null; return this.call('schedule', { notifications: list }); },
+  async cancel(ids) { if (!ids.length) return; try { await this.call('cancel', { notifications: ids.map(id => ({ id })) }); } catch (e) { /* ignorovat */ } },
+  async pending() { try { const r = await this.call('getPending'); return (r && r.notifications) || []; } catch (e) { return []; } }
+};
+const NOTIF_BASE = { smallIcon: 'ic_stat_lucidum', iconColor: '#c9a85c', autoCancel: true };
+
+/* Naplánuje reality checky na několik dní dopředu (při každém otevření aplikace se obnoví). */
+async function planRCNotifications(silent) {
+  const s = S.settings;
+  if (!LN.ok()) return 0;
+  const old = (await LN.pending()).map(n => n.id).filter(id => id >= 1000 && id < 2000);
+  await LN.cancel(old);
+  if (!s.rcNotif) { S.rcPlan = null; save(); return 0; }
+  const signs = s.icsSigns ? dreamSigns(10).map(x => x.word) : [];
+  const days = clamp(s.rcNotifDays || 10, 1, 30);
+  const perDay = clamp(s.icsCount, 1, 20);
+  const list = []; const now = Date.now(); let id = 1000;
+  for (let d = 0; d < days && id < 1000 + 450; d++) {
+    const base = addDays(new Date(), d); base.setHours(0, 0, 0, 0);
+    for (const m of randomTimes(toMin(s.icsFrom), toMin(s.icsTo), perDay)) {
+      const when = new Date(base.getTime()); when.setMinutes(m);
+      if (when.getTime() < now + 120000) continue;
+      const t = pick(RC_TECHNIQUES);
+      let title = `${t.ic} ${t.name} – sníš?`, body = `${t.name}: ${t.how} Pak se rozhlédni – je tu něco zvláštního?`;
+      if (signs.length && Math.random() < 0.5) { const sg = pick(signs); title = `🔮 ${sg} – sníš?`; body = `Ve tvých snech se často objevuje „${sg}“. Představ si ho teď. Sníš? ` + body; }
+      list.push(Object.assign({ id: id++, title, body, largeBody: body, channelId: 'lucidum_rc', schedule: { at: when.toISOString(), allowWhileIdle: true }, isExactNotification: false, extra: { type: 'rc' } }, NOTIF_BASE));
+    }
+  }
+  try {
+    await LN.schedule(list);
+    S.rcPlan = { t: now, count: list.length, until: list.length ? new Date(list[list.length - 1].schedule.at).getTime() : now };
+    save();
+    if (!silent) toast(`Naplánováno ${list.length} připomínek ✓`);
+    return list.length;
+  } catch (e) {
+    if (!silent) toast('Oznámení jsou vypnutá. Povol je v Nastavení telefonu → Aplikace → Lucidum.', 4500);
+    return 0;
+  }
+}
+async function autoRefreshRC() {
+  if (!LN.ok() || !S.settings.rcNotif) return;
+  if (!S.rcPlan || Date.now() - S.rcPlan.t > 20 * 3600e3) await planRCNotifications(true);
+}
+
 /* ---------- Zvukový engine (Web Audio API, bez souborů) ---------- */
 const TOTEMS = [
   { id: 'bell', name: 'Křišťálový zvonek' },
@@ -1364,18 +1457,36 @@ let RT = { wbtbTarget: null, anchor: null, pauseTarget: null };
 function loadRT() { try { RT = Object.assign(RT, JSON.parse(localStorage.getItem(RUN_KEY)) || {}); } catch (e) { /* výchozí */ } }
 function saveRT() { try { localStorage.setItem(RUN_KEY, JSON.stringify(RT)); } catch (e) { /* ignorovat */ } }
 
-function startWBTB(minutes) {
-  AudioEngine.init(); AudioEngine.keepAlive(true);
-  RT.wbtbTarget = Date.now() + minutes * 60000; saveRT(); requestWake();
+async function startWBTB(minutes) {
+  AudioEngine.init();
+  RT.wbtbTarget = Date.now() + minutes * 60000; RT.wbtbNotif = false;
   S.settings.wbtbMinutes = minutes; save();
-  toast(`Budík WBTB nastaven na ${fmtTime(new Date(RT.wbtbTarget))}`);
+  if (LN.ok() && await LN.perm()) {
+    try {
+      await LN.cancel([1]);
+      await LN.schedule([Object.assign({ id: 1, title: '🌙 Čas na WBTB', body: 'Tiše se probuď. Zapiš sen, 20–30 minut zůstaň vzhůru a pak MILD.', channelId: 'lucidum_wbtb', schedule: { at: new Date(RT.wbtbTarget).toISOString(), allowWhileIdle: true }, isExactNotification: true, extra: { type: 'wbtb' } }, NOTIF_BASE)]);
+      RT.wbtbNotif = true;
+    } catch (e) { RT.wbtbNotif = false; }
+  }
+  if (!RT.wbtbNotif) { AudioEngine.keepAlive(true); requestWake(); }
+  saveRT();
+  toast(RT.wbtbNotif ? `Budík nastaven na ${fmtTime(new Date(RT.wbtbTarget))} – můžeš zhasnout displej` : `Budík WBTB nastaven na ${fmtTime(new Date(RT.wbtbTarget))} – nech aplikaci otevřenou`, 3500);
   renderNight();
 }
-function cancelWBTB() { RT.wbtbTarget = null; saveRT(); if (!RT.anchor && !RT.pauseTarget) { AudioEngine.keepAlive(false); releaseWake(); } renderNight(); }
+function cancelWBTB() { RT.wbtbTarget = null; RT.wbtbNotif = false; saveRT(); LN.cancel([1]); if (!RT.anchor && !RT.pauseTarget) { AudioEngine.keepAlive(false); releaseWake(); } renderNight(); }
 
 let alarmLoop = null, alarmGain = null, alarmEnd = 0, alarmUI = null;
 function fireAlarm() {
-  RT.wbtbTarget = null; saveRT();
+  const late = RT.wbtbTarget && Date.now() - RT.wbtbTarget > 90000;
+  const viaNotif = RT.wbtbNotif;
+  RT.wbtbTarget = null; RT.wbtbNotif = false; saveRT();
+  if (late || viaNotif) {
+    // zvuk už obstaralo systémové oznámení – rovnou ukaž pokyny pro bdělou pauzu
+    S.counters.wbtb++; dataChanged();
+    const scr = $('#alarmScreen'); scr.classList.add('open'); markOverlay();
+    stopAlarm(true);
+    return;
+  }
   S.counters.wbtb++; dataChanged();
   const c = AudioEngine.init();
   const fade = clamp(S.settings.wbtbFade, 10, 300); const vol = S.settings.wbtbVol;
@@ -1421,7 +1532,10 @@ function stopAlarm(byUser) {
     <button class="btn primary big block" style="max-width:420px" id="alPause">Odpočet pauzy 20 minut</button>
     <button class="btn big block" style="max-width:420px" id="alDream">Zapsat sen</button>
     <button class="btn ghost block" style="max-width:420px" id="alClose">Zavřít</button>`;
-  $('#alPause').onclick = () => { RT.pauseTarget = Date.now() + 20 * 60000; saveRT(); requestWake(); scr.classList.remove('open'); toast('Za 20 minut tě jemně upozorním: zpátky do postele'); renderNight(); };
+  $('#alPause').onclick = () => {
+    RT.pauseTarget = Date.now() + 20 * 60000; saveRT();
+    if (LN.ok()) LN.schedule([Object.assign({ id: 2, title: '🛏️ Zpátky do postele', body: 'Pauza skončila. Lehni si a opakuj: „Až budu příště snít, uvědomím si, že sním.“', channelId: 'lucidum_rc', schedule: { at: new Date(RT.pauseTarget).toISOString(), allowWhileIdle: true }, isExactNotification: true, extra: { type: 'pause' } }, NOTIF_BASE)]).catch(() => requestWake());
+    else requestWake(); scr.classList.remove('open'); toast('Za 20 minut tě jemně upozorním: zpátky do postele'); renderNight(); };
   $('#alDream').onclick = () => { scr.classList.remove('open'); switchTab('journal'); openEditor(); };
   $('#alClose').onclick = () => { scr.classList.remove('open'); if (!RT.anchor && !RT.pauseTarget) { AudioEngine.keepAlive(false); releaseWake(); } renderNight(); };
   if (!byUser) toast('Zvuk se sám ztišil');
@@ -1442,8 +1556,9 @@ function nightTick() {
   const now = Date.now();
   if (RT.wbtbTarget && now >= RT.wbtbTarget) fireAlarm();
   if (RT.pauseTarget && now >= RT.pauseTarget) {
+    const lateP = now - RT.pauseTarget > 60000;
     RT.pauseTarget = null; saveRT();
-    AudioEngine.playTotem('harp', 0.35);
+    if (!lateP) AudioEngine.playTotem('harp', 0.35);
     toast('Pauza skončila – zpátky do postele s technikou MILD 🌙', 5000);
     if (!RT.anchor && !RT.wbtbTarget) { AudioEngine.keepAlive(false); releaseWake(); }
     if (activeTab === 'night') renderNight();
@@ -1581,7 +1696,7 @@ function renderNight() {
       <div class="section-head"><h3>WBTB budík</h3><span>probuzení v REM fázi</span></div>
       <div class="panel stack">
         ${RT.wbtbTarget ? `
-          <p class="center muted small" style="margin:0">Jemné probuzení v ${fmtTime(new Date(RT.wbtbTarget))}</p>
+          <p class="center muted small" style="margin:0">Jemné probuzení v ${fmtTime(new Date(RT.wbtbTarget))}${RT.wbtbNotif ? ' · ✓ zazvoní i se zhasnutým displejem' : ''}</p>
           <div class="countdown" id="wbCount">${fmtDur(RT.wbtbTarget - now)}</div>
           <button class="btn big block" id="wbNight">Noční displej (ztmavit)</button>
           <div class="row"><button class="btn grow sm" id="wbIcs">Pojistka v kalendáři</button><button class="btn danger grow sm" id="wbCancel">Zrušit budík</button></div>`
@@ -1592,7 +1707,8 @@ function renderNight() {
           <label class="field"><span>Automaticky ztišit po: <b id="wbFadeL">${s.wbtbFade}</b> s</span><input type="range" id="wbFade" min="15" max="180" step="5" value="${s.wbtbFade}"></label>
           <label class="field"><span>Hlasitost</span><input type="range" id="wbVol" min="0.1" max="1" step="0.05" value="${s.wbtbVol}"></label>
           <button class="btn gold big block" id="wbStart">Spustit WBTB odpočet</button>
-          <p class="muted small" style="margin:0">Zvuk: ${esc(totemName)} (mění se v Audio totemu). Nech aplikaci otevřenou, telefon na nabíječce – obrazovka se drží zapnutá a můžeš ji ztmavit. Pro jistotu přidej i „Pojistku v kalendáři“.</p>
+          ${LN.ok() ? `<p class="muted small" style="margin:0">Budík zazvoní jako systémové oznámení i se zhasnutým a zamčeným telefonem. Zvuk zazní jednou a sám utichne. V tichém režimu nebo s „Nerušit“ nezazvoní – před spaním zkontroluj hlasitost.</p>`
+          : `<p class="muted small" style="margin:0">Zvuk: ${esc(totemName)} (mění se v Audio totemu). Nech aplikaci otevřenou, telefon na nabíječce – obrazovka se drží zapnutá a můžeš ji ztmavit. Pro jistotu přidej i „Pojistku v kalendáři“.</p>`}
           <button class="btn sm block" id="wbIcs">Pojistka v kalendáři (.ics budík)</button>`}
         ${RT.pauseTarget ? `<div class="banner center"><p class="small muted" style="margin:0">Bdělá pauza</p><div class="countdown" style="font-size:2.2rem" id="pauseCount">${fmtDur(RT.pauseTarget - now)}</div><button class="btn sm ghost" id="pauseStop">Ukončit pauzu</button></div>` : ''}
       </div>
@@ -1663,7 +1779,7 @@ function renderNight() {
     $('#wbStart').onclick = () => startWBTB(s.wbtbMinutes);
     $('#wbIcs').onclick = wbIcs;
   }
-  if ($('#pauseStop')) $('#pauseStop').onclick = () => { RT.pauseTarget = null; saveRT(); renderNight(); };
+  if ($('#pauseStop')) $('#pauseStop').onclick = () => { RT.pauseTarget = null; saveRT(); LN.cancel([2]); renderNight(); };
 
   // totem
   $$('#toSel .chip').forEach(b => b.onclick = () => { s.totem = b.dataset.t; $$('#toSel .chip').forEach(x => x.classList.toggle('on', x === b)); save(); AudioEngine.playTotem(s.totem, s.totemVol); });
@@ -1998,12 +2114,13 @@ const GUIDE = [
     'Nejspolehlivější je ucpat si nos a zkusit dýchat, a k tomu se podívat na ruce.',
     'Kdykoli tě něco překvapí nebo zarazí, udělej test hned.',
     'Hry <b>Proměnlivý text</b>, <b>Snové hodiny</b> a <b>Najdi anomálii</b> jsou krátký trénink pozornosti, třeba cestou v MHD.'] },
-  { ic: '📅', title: 'Připomínky v kalendáři', lead: 'Telefon ti bude připomínat sám, i bez internetu.', ordered: true, list: [
-    'V záložce <b>Realita</b> sjeď dolů k <b>Připomínkám v kalendáři</b>.',
-    'Nastav čas od–do, počet připomínek denně a na kolik dní dopředu.',
-    'Klepni na <b>Vytvořit a stáhnout .ics</b> a v nabídce vyber svůj Kalendář.',
-    'Potvrď import. Časy jsou pokaždé náhodné, aby si na ně mozek nezvykl.',
-    'Opakuj jednou za 2–4 týdny, ať se do připomínek dostanou i nová snová znamení.'] },
+  { ic: '📅', title: 'Připomínky reality checků', lead: 'Telefon ti bude připomínat sám, i se zhasnutým displejem a bez internetu.', ordered: true, list: [
+    'V záložce <b>Realita</b> sjeď dolů k <b>Připomínkám v telefonu</b>.',
+    'Nastav čas od–do a počet připomínek denně.',
+    'Zapni <b>Zapnout připomínky</b> a povol aplikaci oznámení.',
+    'Hotovo. Časy jsou náhodné a plánují se 10 dní dopředu. Při každém otevření aplikace se samy obnoví i s novými snovými znameními.',
+    'Po změně časů nebo počtu klepni na <b>Uložit a naplánovat</b>. Tlačítkem <b>Vyzkoušet</b> si oznámení otestuješ.',
+    'Klepnutím na oznámení se otevře řízený reality check.'] },
   { ic: '🕯️', title: 'Večer – příprava', ordered: true, list: [
     'V záložce <b>Noc</b> projdi <b>Večerní rituál</b> a odškrtej body.',
     'Napiš <b>záměr</b>, např. „Až uvidím babičku, poznám, že sním.“',
@@ -2011,9 +2128,9 @@ const GUIDE = [
     'Pusť si <b>dechové cvičení</b>. Na zklidnění je nejlepší 4-7-8.',
     'Před usnutím si v duchu opakuj afirmaci z rituálu.'] },
   { ic: '⏰', title: 'V noci – WBTB', lead: 'Nejsilnější technika. Používej 2–3× týdně, ideálně o víkendu.', ordered: true, list: [
-    'Před spaním v záložce <b>Noc</b> nastav WBTB budík na 4,5 nebo 6 hodin a klepni na <b>Spustit</b>.',
-    '<b>Nech aplikaci otevřenou</b> a telefon na nabíječce. Měsíček nahoře displej ztmaví, dvojklepem se vrátíš.',
-    'Pro jistotu přidej <b>Pojistku v kalendáři</b> – stejný budík i v kalendáři.',
+    'Před spaním v záložce <b>Noc</b> nastav WBTB budík na 4,5 nebo 6 hodin a klepni na <b>Spustit</b>. Poprvé povol oznámení.',
+    'Pak můžeš telefon normálně zamknout – budík zazvoní i se zhasnutým displejem.',
+    'Zkontroluj, že telefon není v tichém režimu ani v režimu Nerušit, jinak budík neuslyšíš.',
     'Po zazvonění zvuk sám po chvíli utichne. Vstaň na 20–30 minut, zapiš sen a spusť <b>odpočet pauzy</b>.',
     'Vrať se do postele a opakuj si: „Až budu příště snít, uvědomím si, že sním.“ To je technika MILD (viz Akademie).'] },
   { ic: '🔔', title: 'Audio totem a noční kotva', list: [
@@ -2091,7 +2208,7 @@ function init() {
     e.target.value = '';
   };
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { drawStars(); if (activeTab === 'stats') drawCharts(); }, 200); });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { save(); if (ed) setDraft(ed); } else { nightTick(); if (activeTab === 'reality' || activeTab === 'stats') rerender(); } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { save(); if (ed) setDraft(ed); } else { nightTick(); autoRefreshRC(); if (activeTab === 'reality' || activeTab === 'stats') rerender(); } });
   window.addEventListener('pagehide', () => { save(); if (ed) setDraft(ed); });
   // obnovení běžících nočních nástrojů po znovuotevření aplikace
   if (RT.wbtbTarget || RT.anchor || RT.pauseTarget) {
@@ -2102,6 +2219,7 @@ function init() {
   switchTab('journal');
   checkBadges();
   setInterval(nightTick, 1000);
+  LN.setup().then(autoRefreshRC).catch(() => {});
   if (!S.seenGuide) { S.seenGuide = true; save(); setTimeout(() => openGuide(true), 600); }
 }
 init();
