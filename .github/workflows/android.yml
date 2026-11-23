@@ -30,9 +30,6 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Připravit projekt
         run: |
           if [ ! -f index.html ]; then echo "V repozitáři chybí index.html"; exit 1; fi
