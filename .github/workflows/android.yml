@@ -1,0 +1,246 @@
+name: Sestavit Lucidum APK
+
+# Stačí mít v repozitáři jen dva soubory:
+#   index.html                          (celá aplikace)
+#   .github/workflows/android.yml       (tento soubor)
+# Všechno ostatní se vytvoří automaticky.
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stáhnout kód
+        uses: actions/checkout@v4
+
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Připravit projekt
+        run: |
+          if [ ! -f index.html ]; then echo "V repozitáři chybí index.html"; exit 1; fi
+          mkdir -p www && cp index.html www/index.html
+          cat > package.json << 'EOF'
+          {
+            "name": "lucidum",
+            "version": "1.0.0",
+            "private": true,
+            "dependencies": {
+              "@capacitor/android": "8.6.0",
+              "@capacitor/core": "8.6.0",
+              "@capacitor/filesystem": "8.1.5",
+              "@capacitor/share": "8.0.3"
+            },
+            "devDependencies": {
+              "@capacitor/assets": "3.0.5",
+              "@capacitor/cli": "8.6.0"
+            }
+          }
+          EOF
+          cat > capacitor.config.json << 'EOF'
+          {
+            "appId": "cz.lucidum.app",
+            "appName": "Lucidum",
+            "webDir": "www",
+            "backgroundColor": "#0b1028",
+            "android": { "backgroundColor": "#0b1028", "allowMixedContent": false },
+            "plugins": { "SystemBars": { "insetsHandling": "css", "style": "DARK", "initialViewportFitValueHint": "cover" } }
+          }
+          EOF
+          cat > lucidum.keystore.b64 << 'EOF'
+          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
+          EOF
+          base64 -d lucidum.keystore.b64 > lucidum.keystore
+
+      - name: Instalace závislostí
+        run: npm install --no-audit --no-fund
+
+      - name: Vytvořit Android projekt
+        run: |
+          rm -rf android
+          npx cap add android
+
+      - name: Nativní plugin pro udržení obrazovky (WBTB)
+        run: |
+          D=android/app/src/main/java/cz/lucidum/app
+          cat > $D/KeepAwakePlugin.java << 'EOF'
+          package cz.lucidum.app;
+
+          import android.view.WindowManager;
+          import com.getcapacitor.Plugin;
+          import com.getcapacitor.PluginCall;
+          import com.getcapacitor.PluginMethod;
+          import com.getcapacitor.annotation.CapacitorPlugin;
+
+          @CapacitorPlugin(name = "KeepAwake")
+          public class KeepAwakePlugin extends Plugin {
+              @PluginMethod
+              public void keepAwake(PluginCall call) {
+                  getActivity().runOnUiThread(() -> {
+                      getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                      call.resolve();
+                  });
+              }
+
+              @PluginMethod
+              public void allowSleep(PluginCall call) {
+                  getActivity().runOnUiThread(() -> {
+                      getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                      call.resolve();
+                  });
+              }
+          }
+          EOF
+          cat > $D/MainActivity.java << 'EOF'
+          package cz.lucidum.app;
+
+          import android.os.Bundle;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  registerPlugin(KeepAwakePlugin.class);
+                  super.onCreate(savedInstanceState);
+              }
+          }
+          EOF
+
+      - name: Ikona a úvodní obrazovka
+        continue-on-error: true
+        run: |
+          python3 -m pip install --quiet --break-system-packages pillow || python3 -m pip install --quiet --user pillow
+          mkdir -p assets
+          python3 << 'EOF'
+          from PIL import Image, ImageDraw, ImageFilter
+          import random
+          def bg(size):
+              im = Image.new('RGB', (size, size), '#0b1028'); d = ImageDraw.Draw(im)
+              for r in range(size // 2, 0, -4):
+                  t = r / (size / 2)
+                  d.ellipse((size/2-r, size*0.45-r, size/2+r, size*0.45+r), fill=(int(11+25*(1-t)), int(16+14*(1-t)), int(40+50*(1-t))))
+              random.seed(3)
+              for _ in range(size // 12):
+                  x, y = random.random()*size, random.random()*size; rr = random.random()*size/700 + size/1400
+                  d.ellipse((x-rr, y-rr, x+rr, y+rr), fill=(210, 205, 240))
+              return im
+          def moon(size, scale):
+              R = size*scale/2; cx = cy = size/2
+              disc = Image.new('L', (size, size), 0); ImageDraw.Draw(disc).ellipse((cx-R, cy-R, cx+R, cy+R), fill=255)
+              cut = Image.new('L', (size, size), 0); ImageDraw.Draw(cut).ellipse((cx-R*0.45, cy-R*1.12, cx+R*1.5, cy+R*0.82), fill=255)
+              mask = Image.composite(Image.new('L', (size, size), 0), disc, cut)
+              out = Image.new('RGBA', (size, size), (201, 168, 92, 0))
+              out.putalpha(mask.filter(ImageFilter.GaussianBlur(size/25)).point(lambda v: int(v*0.45)))
+              gold = Image.new('RGBA', (size, size), (201, 168, 92, 255)); gd = ImageDraw.Draw(gold)
+              ox, oy = cx-R*0.45, cy-R*0.35
+              for r in range(int(R*1.6), 0, -2):
+                  t = min(1, r/(R*1.4))
+                  gd.ellipse((ox-r, oy-r, ox+r, oy+r), fill=(int(245-49*t), int(232-72*t), int(192-108*t), 255))
+              out.paste(gold, (0, 0), mask)
+              s = size*0.03; x, y = cx+R*0.5, cy-R*0.1
+              ImageDraw.Draw(out).polygon([(x,y-s*2),(x+s*0.45,y-s*0.45),(x+s*2,y),(x+s*0.45,y+s*0.45),(x,y+s*2),(x-s*0.45,y+s*0.45),(x-s*2,y),(x-s*0.45,y-s*0.45)], fill=(240,225,180,255))
+              return out
+          Image.alpha_composite(bg(1024).convert('RGBA'), moon(1024, 0.56)).convert('RGB').save('assets/icon-only.png')
+          moon(1024, 0.42).save('assets/icon-foreground.png')
+          bg(1024).save('assets/icon-background.png')
+          sp = Image.alpha_composite(bg(2732).convert('RGBA'), moon(2732, 0.22)).convert('RGB')
+          sp.save('assets/splash.png'); sp.save('assets/splash-dark.png')
+          EOF
+          npx @capacitor/assets generate --android --iconBackgroundColor '#0b1028' --iconBackgroundColorDark '#0b1028' --splashBackgroundColor '#0b1028' --splashBackgroundColorDark '#0b1028'
+
+      - name: Synchronizace webu do aplikace
+        run: npx cap sync android
+
+      - name: Podpisový klíč a číslo verze
+        run: |
+          G=android/app/build.gradle
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" $G
+          sed -i "s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/" $G
+          sed -i "0,/^android {/s//android {\n    signingConfigs {\n        debug {\n            storeFile file('..\/..\/lucidum.keystore')\n            storePassword 'android'\n            keyAlias 'androiddebugkey'\n            keyPassword 'android'\n        }\n    }/" $G
+
+      - name: Sestavení APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Přejmenovat APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk Lucidum.apk
+
+      - name: Uložit jako artefakt
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lucidum-APK
+          path: Lucidum.apk
+
+      - name: Vydat ke stažení (Releases)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v1.0.${{ github.run_number }}" Lucidum.apk \
+            --title "Lucidum 1.0.${{ github.run_number }}" \
+            --notes "Stáhni Lucidum.apk a nainstaluj. Nová verze se nainstaluje přes starou, data zůstanou."
+            
