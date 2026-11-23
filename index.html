@@ -235,6 +235,17 @@ canvas{display:block;width:100%}
 .timepreview{font-variant-numeric:tabular-nums;color:var(--azure)}
 .levelcard{display:flex;gap:16px;align-items:center}
 .levelcard svg{width:72px;height:72px;flex:none}
+.topbar{gap:8px}
+.guide-sec{border:1px solid var(--line);border-radius:var(--radius-m);margin-bottom:10px;background:rgba(22,29,74,.6);overflow:hidden}
+.guide-sec > button{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:10px 14px;text-align:left}
+.guide-sec > button h3{flex:1;font-size:1.08rem}
+.guide-sec > button .chev{transition:transform .25s;color:var(--dim)}
+.guide-sec.open > button .chev{transform:rotate(180deg)}
+.guide-sec .gbody{display:none;padding:0 16px 14px}
+.guide-sec.open .gbody{display:block}
+.guide-list{margin:4px 0;padding-left:20px}
+.guide-list li{margin:7px 0;line-height:1.55}
+.guide-lead{color:var(--dim);font-size:.93rem;margin:0 0 6px}
 pre.code{white-space:pre-wrap;word-break:break-all;font-size:.75rem;max-height:200px;overflow:auto;background:rgba(8,11,32,.6);padding:10px;border-radius:10px;border:1px solid var(--line);user-select:text;-webkit-user-select:text}
 </style>
 </head>
@@ -246,6 +257,7 @@ pre.code{white-space:pre-wrap;word-break:break-all;font-size:.75rem;max-height:2
       <svg class="brand-moon" viewBox="0 0 40 40" aria-hidden="true"><defs><radialGradient id="mg" cx="40%" cy="35%"><stop offset="0" stop-color="#f1e2b0"/><stop offset="1" stop-color="#c9a85c"/></radialGradient></defs><circle cx="20" cy="20" r="15" fill="url(#mg)"/><circle id="brandShadow" cx="27" cy="16" r="13" fill="#0b1028"/></svg>
       <div><h1>Lucidum</h1><small id="levelLabel">Začátečník</small></div>
     </div>
+    <button class="icon-btn" id="btnHelp" aria-label="Návod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.4 9.2a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.4-2.6 4"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg></button>
     <button class="icon-btn" id="btnDim" aria-label="Noční displej"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></button>
     <button class="icon-btn" id="btnSettings" aria-label="Nastavení a data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button>
   </header>
@@ -1755,10 +1767,12 @@ function renderAcademy() {
       <div class="levelcard">${moonSVG(L.pct, L.idx, 'a' + L.idx)}<div class="grow"><h3>${esc(L.name)}</h3><p class="muted small" style="margin:2px 0 8px">${L.next ? `${L.need - L.xp} XP do úrovně ${esc(L.next)}` : 'Nejvyšší úroveň dosažena'}</p><div class="progress"><div style="width:${Math.round(L.pct * 100)}%"></div></div></div></div>
       <p class="muted small" style="margin:12px 0 0">Prostudováno ${read}/${ACADEMY.length} lekcí · každá lekce +15 XP</p>
     </div>
+    <button class="tech section" id="acGuide"><span class="glyph">🧭</span><span class="grow"><h3>Jak používat aplikaci</h3><p>Ranní zápis, reality checky, WBTB, kotva a záloha – krok za krokem.</p></span></button>
     ${groups.map(g => `<div class="section"><div class="section-head"><h3>${esc(g)}</h3></div>
       ${ACADEMY.filter(a => a.group === g).map(a => `<button class="tech" data-ac="${a.id}"><span class="glyph ${S.academyRead.includes(a.id) ? 'done' : ''}">${S.academyRead.includes(a.id) ? '✓' : a.ic}</span><span class="grow"><h3>${esc(a.title)}</h3><p>${esc(a.intro.split('. ')[0])}.</p><span class="tag-level">${esc(a.time)} čtení</span></span></button>`).join('')}
     </div>`).join('')}`;
   $$('[data-ac]', v).forEach(b => b.onclick = () => openLesson(b.dataset.ac));
+  $('#acGuide').onclick = () => openGuide(false);
 }
 function openLesson(id) {
   const a = ACADEMY.find(x => x.id === id); if (!a) return;
@@ -1956,6 +1970,80 @@ function handleImportText(txt) {
 }
 function applyDim() { $('#dimLayer').style.opacity = String(S.settings.dim || 0); }
 
+
+/* ---------- Návod k aplikaci ---------- */
+const GUIDE = [
+  { ic: '🧭', title: 'Jak to celé funguje', lead: 'Aplikace je postavená na denní rutině. Každá záložka dole odpovídá jedné části dne.', list: [
+    '<b>Deník</b> – ráno zapisuješ sny.',
+    '<b>Realita</b> – přes den trénuješ reality checky.',
+    '<b>Noc</b> – večerní příprava a noční nástroje.',
+    '<b>Akademie</b> – návody k technikám.',
+    '<b>Pokrok</b> – grafy, úrovně, odznaky a záloha dat.',
+    'Realistické očekávání: první týden hlavně zapisuj sny a dělej reality checky. První lucidní sen přichází obvykle během 2–6 týdnů pravidelného deníku.'] },
+  { ic: '🌅', title: 'Ráno – zápis snu', lead: 'Sny mizí během pár minut, proto zapisuj hned.', ordered: true, list: [
+    'Po probuzení se nehýbej a vybav si poslední obraz snu. Pak jdi v ději pozpátku.',
+    'V záložce <b>Deník</b> klepni na <b>Zapsat sen</b>.',
+    'Piš rychle, klidně bez interpunkce, nebo diktuj přes mikrofon na klávesnici. Při uložení se text sám uhladí. Tlačítkem <b>✨ Uhladit</b> to uvidíš předem a jde to i vrátit.',
+    'Když se ti nechce psát, naklikej aspoň štítky (místa, lidé, motivy) a emoce.',
+    'Nastav živost 1–5. Pokud jsi věděl/a, že sníš, zapni <b>Byl to lucidní sen?</b> a vyber, co tě zlucidnilo.',
+    'Název psát nemusíš, vytvoří se sám. Rozepsaný sen se průběžně ukládá jako koncept.'] },
+  { ic: '🔮', title: 'Snová znamení', lead: 'Tvoje největší šance na lucidní sen.', list: [
+    'Po pár zápisech se v Deníku objeví <b>Tvoje snová znamení</b> – motivy, které se ve snech opakují.',
+    'Klepnutím na znamení vyfiltruješ sny, kde se objevilo.',
+    'Vyber si jedno znamení na týden. Kdykoli ho uvidíš nebo si na něj vzpomeneš, udělej reality check.',
+    'Znamení se automaticky vkládají i do kalendářových připomínek a do večerního záměru.'] },
+  { ic: '✋', title: 'Přes den – reality checky', lead: 'Cílem je zvyk, který se přenese do snu.', list: [
+    'Dělej <b>10–15 testů denně</b>. Tlačítko <b>Provést reality check teď</b> tě provede dvěma testy a otázkami.',
+    'Neber to mechanicky. Opravdu se zastav, prozkoumej okolí a připusť, že můžeš snít.',
+    'Nejspolehlivější je ucpat si nos a zkusit dýchat, a k tomu se podívat na ruce.',
+    'Kdykoli tě něco překvapí nebo zarazí, udělej test hned.',
+    'Hry <b>Proměnlivý text</b>, <b>Snové hodiny</b> a <b>Najdi anomálii</b> jsou krátký trénink pozornosti, třeba cestou v MHD.'] },
+  { ic: '📅', title: 'Připomínky v kalendáři', lead: 'Telefon ti bude připomínat sám, i bez internetu.', ordered: true, list: [
+    'V záložce <b>Realita</b> sjeď dolů k <b>Připomínkám v kalendáři</b>.',
+    'Nastav čas od–do, počet připomínek denně a na kolik dní dopředu.',
+    'Klepni na <b>Vytvořit a stáhnout .ics</b> a v nabídce vyber svůj Kalendář.',
+    'Potvrď import. Časy jsou pokaždé náhodné, aby si na ně mozek nezvykl.',
+    'Opakuj jednou za 2–4 týdny, ať se do připomínek dostanou i nová snová znamení.'] },
+  { ic: '🕯️', title: 'Večer – příprava', ordered: true, list: [
+    'V záložce <b>Noc</b> projdi <b>Večerní rituál</b> a odškrtej body.',
+    'Napiš <b>záměr</b>, např. „Až uvidím babičku, poznám, že sním.“',
+    'Napiš <b>plán</b>, co uděláš, až zlucidníš. Konkrétní plán výrazně zvyšuje šanci na úspěch.',
+    'Pusť si <b>dechové cvičení</b>. Na zklidnění je nejlepší 4-7-8.',
+    'Před usnutím si v duchu opakuj afirmaci z rituálu.'] },
+  { ic: '⏰', title: 'V noci – WBTB', lead: 'Nejsilnější technika. Používej 2–3× týdně, ideálně o víkendu.', ordered: true, list: [
+    'Před spaním v záložce <b>Noc</b> nastav WBTB budík na 4,5 nebo 6 hodin a klepni na <b>Spustit</b>.',
+    '<b>Nech aplikaci otevřenou</b> a telefon na nabíječce. Měsíček nahoře displej ztmaví, dvojklepem se vrátíš.',
+    'Pro jistotu přidej <b>Pojistku v kalendáři</b> – stejný budík i v kalendáři.',
+    'Po zazvonění zvuk sám po chvíli utichne. Vstaň na 20–30 minut, zapiš sen a spusť <b>odpočet pauzy</b>.',
+    'Vrať se do postele a opakuj si: „Až budu příště snít, uvědomím si, že sním.“ To je technika MILD (viz Akademie).'] },
+  { ic: '🔔', title: 'Audio totem a noční kotva', list: [
+    '<b>Audio totem</b>: vyber si jeden zvuk. Hraje při každém reality checku, takže si ho mozek spojí s otázkou „Sním?“.',
+    '<b>Noční kotva</b> přehrává stejný zvuk velmi potichu během noci. Ve snu ho můžeš zaslechnout a uvědomit si, že sníš.',
+    'Nejdřív kotvu vyzkoušej tlačítkem <b>Vyzkoušet</b> a nastav hlasitost tak, aby tě nebudila.',
+    'Nejlépe funguje po WBTB: začátek za 20–30 minut, interval 10–15 minut.'] },
+  { ic: '📚', title: 'Akademie a pokrok', list: [
+    'Začni lekcemi <b>Snový deník</b>, <b>Reality checky</b> a <b>MILD</b>. Ostatní techniky přidávej postupně.',
+    'Za zápisy, lucidní sny, lekce, rituály i reality checky získáváš body a postupuješ úrovněmi až k Mistrovi snění.',
+    'V záložce <b>Pokrok</b> uvidíš grafy, sérii nocí, odznaky a co tě nejčastěji zlucidní.'] },
+  { ic: '💾', title: 'Záloha dat', lead: 'Všechna data jsou jen v tomto telefonu.', list: [
+    'Aplikace si sama dělá denní zálohy a zálohu před každým mazáním či importem.',
+    'Jednou za čas otevři ozubené kolo nahoře a dej <b>Exportovat vše</b>. Soubor ulož na Disk nebo pošli e-mailem sobě.',
+    'Při výměně telefonu soubor jen naimportuješ.',
+    'Tento návod najdeš kdykoli pod otazníkem v horní liště.'] }
+];
+function openGuide(first) {
+  markOverlay();
+  openSheet(`<div class="sheet-head"><h2>${first ? 'Vítej v aplikaci Lucidum' : 'Jak používat Lucidum'}</h2><button class="icon-btn" id="gdClose" aria-label="Zavřít"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    ${first ? '<p class="muted" style="margin-top:0">Krátký návod, jak z aplikace dostat maximum. Klepni na téma pro rozbalení.</p>' : ''}
+    ${GUIDE.map((s, i) => `<div class="guide-sec ${i === 0 ? 'open' : ''}"><button data-g="${i}"><span style="font-size:1.4rem">${s.ic}</span><h3>${esc(s.title)}</h3><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="gbody">${s.lead ? `<p class="guide-lead">${esc(s.lead)}</p>` : ''}${s.ordered ? `<ol class="steps">${s.list.map(x => `<li>${x}</li>`).join('')}</ol>` : `<ul class="guide-list">${s.list.map(x => `<li>${x}</li>`).join('')}</ul>`}</div></div>`).join('')}
+    <button class="btn primary big block" id="gdOk" style="margin-top:8px">${first ? 'Začít' : 'Rozumím'}</button>`, sh => {
+    $$('[data-g]', sh).forEach(b => b.onclick = () => b.parentElement.classList.toggle('open'));
+    $('#gdClose', sh).onclick = closeSheet;
+    $('#gdOk', sh).onclick = closeSheet;
+  });
+}
+
 /* ---------- Navigace ---------- */
 const TABS = ['journal', 'reality', 'night', 'academy', 'stats'];
 let activeTab = 'journal';
@@ -1995,6 +2083,7 @@ function init() {
   $$('#nav button').forEach(b => b.onclick = () => { vibrate(6); switchTab(b.dataset.tab); });
   $('#btnSettings').onclick = openSettings;
   $('#btnDim').onclick = openNightScreen;
+  $('#btnHelp').onclick = () => openGuide(false);
   $('#sheetWrap').addEventListener('click', e => { if (e.target.id === 'sheetWrap') closeSheet(); });
   $('#fileImport').onchange = e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
@@ -2013,6 +2102,7 @@ function init() {
   switchTab('journal');
   checkBadges();
   setInterval(nightTick, 1000);
+  if (!S.seenGuide) { S.seenGuide = true; save(); setTimeout(() => openGuide(true), 600); }
 }
 init();
 </script>
